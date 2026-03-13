@@ -17,7 +17,7 @@ export default async function DashboardPage() {
   if (profile?.role !== 'creator') redirect('/')
 
   const { data: creator } = await supabase.from('creators').select('*').eq('user_id', user.id).single()
-  if (!creator) redirect('/dashboard/setup')
+  if (!creator) redirect('/dashboard/subscription')
 
   const { data: reviews } = await supabase
     .from('reviews')

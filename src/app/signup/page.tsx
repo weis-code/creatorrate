@@ -17,6 +17,7 @@ function SignupForm() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [emailSent, setEmailSent] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
@@ -44,7 +45,33 @@ function SignupForm() {
       body: JSON.stringify({ email, username, role }),
     }).catch(() => {})
 
-    window.location.href = (role === 'creator' && data.user) ? '/dashboard/subscription' : '/'
+    if (role === 'viewer') {
+      window.location.href = '/'
+    } else {
+      setEmailSent(true)
+      setLoading(false)
+    }
+  }
+
+  if (emailSent) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/20 flex items-center justify-center py-12 px-4">
+        <div className="w-full max-w-md text-center">
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden p-10">
+            <div className="h-1 bg-gradient-to-r from-indigo-600 to-purple-600 -mx-10 -mt-10 mb-8" />
+            <div className="text-5xl mb-4">📧</div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Tjek din email</h2>
+            <p className="text-gray-500 text-sm mb-6">
+              Vi har sendt en bekræftelsesmail til <strong>{email}</strong>.<br />
+              Klik på linket i mailen for at aktivere din konto og vælge et abonnement.
+            </p>
+            <Link href="/login" className="text-indigo-600 hover:text-indigo-700 text-sm font-semibold">
+              Tilbage til login
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
