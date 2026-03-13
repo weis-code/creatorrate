@@ -44,7 +44,7 @@ function SignupForm() {
       body: JSON.stringify({ email, username, role }),
     }).catch(() => {})
 
-    window.location.href = (role === 'creator' && data.user) ? '/dashboard/setup' : '/'
+    window.location.href = (role === 'creator' && data.user) ? '/dashboard/subscription' : '/'
   }
 
   return (

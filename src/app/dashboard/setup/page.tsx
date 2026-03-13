@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { validatePlatformUrls } from '@/lib/platformVerification'
 import { useTranslations } from 'next-intl'
@@ -34,9 +34,12 @@ const GlobeIcon = () => (
   </svg>
 )
 
-export default function SetupPage() {
+function SetupPage() {
   const t = useTranslations('setup')
   const tCommon = useTranslations('common')
+  const searchParams = useSearchParams()
+  const paymentSuccess = searchParams.get('payment') === 'success'
+  const [existingCreatorId, setExistingCreatorId] = useState<string | null>(null)
   const [form, setForm] = useState({
     display_name: '',
     slug: '',
@@ -51,6 +54,28 @@ export default function SetupPage() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const supabase = createClient()
+
+  // Load existing creator data if present
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return
+      supabase.from('creators').select('*').eq('user_id', user.id).single().then(({ data }) => {
+        if (data) {
+          setExistingCreatorId(data.id)
+          setForm({
+            display_name: data.display_name || '',
+            slug: data.slug || '',
+            bio: data.bio || '',
+            category: data.category || '',
+            youtube_url: data.youtube_url || '',
+            instagram_url: data.instagram_url || '',
+            tiktok_url: data.tiktok_url || '',
+            website_url: data.website_url || '',
+          })
+        }
+      })
+    })
+  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -74,6 +99,29 @@ export default function SetupPage() {
       form.slug
     )
     if (platformError) { setError(platformError); setLoading(false); return }
+
+    // If user already has a creator row, update it
+    if (existingCreatorId) {
+      const { error } = await supabase.from('creators').update({
+        display_name: form.display_name,
+        slug: form.slug,
+        bio: form.bio,
+        category: form.category,
+        youtube_url: form.youtube_url,
+        instagram_url: form.instagram_url,
+        tiktok_url: form.tiktok_url,
+        website_url: form.website_url,
+      }).eq('id', existingCreatorId)
+
+      if (error) {
+        if (error.code === '23505') setError(t('slugTaken'))
+        else setError(tCommon('error') + ': ' + error.message)
+        setLoading(false)
+        return
+      }
+      router.push('/dashboard')
+      return
+    }
 
     // Check if slug exists as unclaimed placeholder — claim it instead
     const { data: existing } = await supabase
@@ -120,6 +168,11 @@ export default function SetupPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/20">
+      {paymentSuccess && (
+        <div className="bg-green-500 text-white text-center py-3 px-4 text-sm font-medium">
+          🎉 Betaling gennemført! Udfyld nu din creator-profil herunder.
+        </div>
+      )}
       {/* Header banner */}
       <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-10 text-center">
         <div className="max-w-2xl mx-auto">
@@ -313,5 +366,15 @@ export default function SetupPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+import { Suspense } from 'react'
+
+export default function SetupPageWrapper() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="text-gray-500">Indlæser...</div></div>}>
+      <SetupPage />
+    </Suspense>
   )
 }

@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl'
 interface Props {
   priceId: string
   tier: 'basic' | 'pro'
-  creatorId: string
+  creatorId: string | null
 }
 
 export default function CheckoutButton({ priceId, tier, creatorId }: Props) {

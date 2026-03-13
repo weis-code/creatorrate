@@ -15,14 +15,13 @@ export default async function SubscriptionPage() {
   if (!user) redirect('/login')
 
   const { data: creator } = await supabase.from('creators').select('*').eq('user_id', user.id).single()
-  if (!creator) redirect('/dashboard/setup')
 
-  const { data: subscription } = await supabase
+  const { data: subscription } = creator ? await supabase
     .from('subscriptions')
     .select('*')
     .eq('creator_id', creator.id)
     .eq('status', 'active')
-    .single()
+    .single() : { data: null }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
@@ -109,7 +108,7 @@ export default async function SubscriptionPage() {
                     ))}
                   </ul>
                   {!isActive && (
-                    <CheckoutButton priceId={plan.priceId} tier={plan.name.toLowerCase() as 'basic' | 'pro'} creatorId={creator.id} />
+                    <CheckoutButton priceId={plan.priceId} tier={plan.name.toLowerCase() as 'basic' | 'pro'} creatorId={creator?.id ?? null} />
                   )}
                   {isActive && (
                     <div className="text-center text-sm text-gray-400 bg-gray-50 py-3 rounded-xl">
