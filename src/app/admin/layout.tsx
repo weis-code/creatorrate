@@ -1,17 +1,14 @@
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const cookieStore = await cookies()
+  const adminAuth = cookieStore.get('admin_auth')?.value
+  const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase()
 
-  if (!user) {
-    redirect('/login?redirect=/admin')
-  }
-
-  if (user.email?.toLowerCase() !== process.env.ADMIN_EMAIL?.toLowerCase()) {
-    redirect('/')
+  if (!adminAuth || adminAuth !== adminEmail) {
+    redirect('/admin-login')
   }
 
   const navItems = [
@@ -23,7 +20,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="min-h-screen bg-[#f8f8fc] flex">
-      {/* Sidebar */}
       <aside className="w-56 bg-[#0f0f1a] flex-shrink-0 flex flex-col min-h-screen fixed left-0 top-0 bottom-0 z-40">
         <div className="px-5 py-5 border-b border-white/5">
           <div className="flex items-center gap-2.5">
@@ -50,32 +46,24 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           ))}
         </nav>
 
-        <div className="px-3 py-4 border-t border-white/5">
-          <Link
-            href="/"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/30 hover:text-white/60 transition-all text-xs font-medium"
-          >
-            <span>←</span>
-            Tilbage til sitet
+        <div className="px-3 py-4 border-t border-white/5 space-y-0.5">
+          <Link href="/" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/30 hover:text-white/60 transition-all text-xs font-medium">
+            <span>←</span> Tilbage til sitet
           </Link>
         </div>
       </aside>
 
-      {/* Main content */}
       <div className="flex-1 ml-56">
         <div className="bg-white border-b border-gray-100 px-8 py-4 sticky top-0 z-30">
           <div className="flex items-center justify-between">
             <div className="text-xs text-gray-400 font-medium">Admin Panel</div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-green-400 rounded-full" />
-              <span className="text-xs text-gray-500 font-medium">{user.email}</span>
+              <span className="text-xs text-gray-500 font-medium">{adminEmail}</span>
             </div>
           </div>
         </div>
-
-        <div className="px-8 py-8">
-          {children}
-        </div>
+        <div className="px-8 py-8">{children}</div>
       </div>
     </div>
   )
