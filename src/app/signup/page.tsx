@@ -45,7 +45,7 @@ function SignupForm() {
     setLoading(true)
     setError('')
 
-    const { error: signupError } = await supabase.auth.signUp({
+    const { error: signupError, data } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { username, role: 'viewer' } },
@@ -53,6 +53,13 @@ function SignupForm() {
 
     if (signupError) {
       setError(signupError.message)
+      setLoading(false)
+      return
+    }
+
+    // Supabase returnerer identities: [] hvis email allerede er registreret
+    if (data.user?.identities?.length === 0) {
+      setError('Der eksisterer allerede en konto med denne email')
       setLoading(false)
       return
     }
