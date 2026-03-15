@@ -1,66 +1,88 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
+import DeleteUserButton from './DeleteUserButton'
 
 export const dynamic = 'force-dynamic'
 
 export default async function UsersPage() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data: users } = await supabase
     .from('profiles')
     .select('id, email, username, role, created_at')
     .order('created_at', { ascending: false })
-    .limit(100)
+    .limit(200)
+
+  const creators = users?.filter(u => u.role === 'creator').length ?? 0
+  const viewers = users?.filter(u => u.role === 'viewer').length ?? 0
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Users</h1>
-        <span className="bg-gray-100 text-gray-700 text-sm font-medium px-3 py-1 rounded-full">
-          {users?.length ?? 0} shown (max 100)
-        </span>
+    <div className="max-w-5xl space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-black text-gray-900 tracking-tight">Brugere</h1>
+          <p className="text-sm text-gray-400 mt-1">Alle registrerede brugere på platformen</p>
+        </div>
+        <div className="flex gap-3">
+          <div className="bg-purple-50 text-purple-700 px-4 py-2 rounded-xl text-sm font-semibold">
+            🎬 {creators} creators
+          </div>
+          <div className="bg-gray-50 text-gray-600 px-4 py-2 rounded-xl text-sm font-semibold">
+            👀 {viewers} viewers
+          </div>
+        </div>
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-100 bg-gray-50">
-              <th className="text-left px-5 py-3 font-semibold text-gray-500 text-xs uppercase tracking-wide">User</th>
-              <th className="text-left px-5 py-3 font-semibold text-gray-500 text-xs uppercase tracking-wide">Email</th>
-              <th className="text-left px-5 py-3 font-semibold text-gray-500 text-xs uppercase tracking-wide">Role</th>
-              <th className="text-left px-5 py-3 font-semibold text-gray-500 text-xs uppercase tracking-wide">Joined</th>
+            <tr className="border-b border-gray-100 bg-gray-50/50">
+              <th className="text-left px-6 py-3.5 font-semibold text-gray-400 text-xs uppercase tracking-wide">Bruger</th>
+              <th className="text-left px-6 py-3.5 font-semibold text-gray-400 text-xs uppercase tracking-wide">Email</th>
+              <th className="text-left px-6 py-3.5 font-semibold text-gray-400 text-xs uppercase tracking-wide">Rolle</th>
+              <th className="text-left px-6 py-3.5 font-semibold text-gray-400 text-xs uppercase tracking-wide">Oprettet</th>
+              <th className="px-6 py-3.5" />
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-gray-50">
             {users?.map((user) => (
-              <tr key={user.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                <td className="px-5 py-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+              <tr key={user.id} className="hover:bg-gray-50/50 transition-colors">
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                       {user.username?.[0]?.toUpperCase() ?? '?'}
                     </div>
-                    <span className="font-medium text-gray-900">@{user.username}</span>
+                    <span className="font-semibold text-gray-900">@{user.username}</span>
                   </div>
                 </td>
-                <td className="px-5 py-3 text-gray-500">{user.email}</td>
-                <td className="px-5 py-3">
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium ${
+                <td className="px-6 py-4 text-gray-400 text-xs">{user.email}</td>
+                <td className="px-6 py-4">
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold ${
                     user.role === 'creator'
-                      ? 'bg-purple-100 text-purple-700'
-                      : 'bg-gray-100 text-gray-600'
+                      ? 'bg-purple-50 text-purple-700'
+                      : 'bg-gray-50 text-gray-500'
                   }`}>
                     {user.role === 'creator' ? '🎬' : '👀'} {user.role}
                   </span>
                 </td>
-                <td className="px-5 py-3 text-gray-400 text-xs">
-                  {new Date(user.created_at).toLocaleDateString('en-GB')}
+                <td className="px-6 py-4 text-gray-400 text-xs">
+                  {new Date(user.created_at).toLocaleDateString('da-DK', { day: 'numeric', month: 'short', year: 'numeric' })}
+                </td>
+                <td className="px-6 py-4 text-right">
+                  <DeleteUserButton userId={user.id} username={user.username ?? user.id} />
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
         {!users?.length && (
-          <div className="py-12 text-center text-gray-400">No users found</div>
+          <div className="py-16 text-center text-gray-400">
+            <div className="text-3xl mb-2">👥</div>
+            <p className="text-sm">Ingen brugere endnu</p>
+          </div>
         )}
+        <div className="px-6 py-3 bg-gray-50/50 border-t border-gray-50 text-xs text-gray-400">
+          Viser {users?.length ?? 0} brugere (max 200)
+        </div>
       </div>
     </div>
   )
