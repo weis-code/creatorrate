@@ -65,6 +65,7 @@ async function handleCreatorSignup(supabase: ReturnType<typeof getSupabaseAdmin>
   const { data: linkData } = await supabase.auth.admin.generateLink({
     type: 'signup',
     email: pending.email,
+    password: pending.password,
     options: {
       redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/setup`,
     },
