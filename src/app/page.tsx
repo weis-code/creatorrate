@@ -16,123 +16,144 @@ export default async function HomePage() {
     .limit(6)
 
   return (
-    <div className="min-h-screen">
-      {/* Hero */}
-      <section className="relative bg-gradient-to-br from-indigo-600 via-purple-600 to-purple-700 text-white overflow-hidden">
-        {/* Decorative blobs */}
-        <div className="absolute top-0 left-0 w-96 h-96 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/5 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl" />
+    <div className="min-h-screen bg-white">
 
-        <div className="relative max-w-4xl mx-auto px-4 py-28 text-center">
-          <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/20 text-white/90 text-xs font-medium px-4 py-1.5 rounded-full mb-8">
-            <span className="w-1.5 h-1.5 bg-green-300 rounded-full animate-pulse" />
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-[#0a0a0f]">
+        {/* Background grid */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCA0MCBBIDQ1IDQ1IDAgMCAwIDQwIDEwIFoiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-40" />
+
+        {/* Glow effects */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-indigo-600/20 rounded-full blur-[120px]" />
+        <div className="absolute top-1/4 right-1/4 w-[300px] h-[300px] bg-purple-600/15 rounded-full blur-[80px]" />
+
+        <div className="relative max-w-5xl mx-auto px-4 py-32 text-center">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 border border-white/10 bg-white/5 backdrop-blur-sm text-white/70 text-xs font-medium px-4 py-1.5 rounded-full mb-10">
+            <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
             {t('badge')}
           </div>
-          <h1 className="text-5xl sm:text-6xl font-extrabold mb-6 leading-tight tracking-tight">
+
+          {/* Headline */}
+          <h1 className="text-5xl sm:text-7xl font-black mb-6 leading-[1.05] tracking-tight text-white">
             {t('headline1')}<br />
-            <span className="text-yellow-300">{t('headline2')}</span>
+            <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              {t('headline2')}
+            </span>
           </h1>
-          <p className="text-lg text-indigo-100 mb-10 max-w-xl mx-auto leading-relaxed">
+
+          <p className="text-lg text-white/50 mb-12 max-w-lg mx-auto leading-relaxed">
             {t('subtext')}
           </p>
-          <div className="flex gap-4 justify-center flex-wrap">
+
+          <div className="flex gap-3 justify-center flex-wrap">
             <Link
               href="/creators"
-              className="bg-white text-indigo-700 px-8 py-3.5 rounded-xl font-semibold hover:bg-indigo-50 transition-colors shadow-lg shadow-black/10"
+              className="bg-white text-gray-900 px-8 py-3.5 rounded-xl font-semibold hover:bg-gray-100 transition-all shadow-lg text-sm"
             >
               {t('exploreBtn')}
             </Link>
             <Link
               href="/signup?role=creator"
-              className="border-2 border-white/60 text-white px-8 py-3.5 rounded-xl font-semibold hover:bg-white/10 hover:border-white transition-colors"
+              className="border border-white/15 bg-white/5 text-white px-8 py-3.5 rounded-xl font-semibold hover:bg-white/10 hover:border-white/25 transition-all text-sm backdrop-blur-sm"
             >
-              {t('becomeCreatorBtn')}
+              {t('becomeCreatorBtn')} →
             </Link>
           </div>
-        </div>
-      </section>
 
-      {/* Trust bar */}
-      <section className="bg-white border-b border-gray-100">
-        <div className="max-w-4xl mx-auto px-4 py-10">
-          <div className="grid grid-cols-3 gap-6 text-center">
+          {/* Social proof numbers */}
+          <div className="mt-16 flex items-center justify-center gap-10 flex-wrap">
             {[
-              { value: t('free'), label: t('freeDesc'), icon: '🎯' },
-              { value: t('honest'), label: t('honestDesc'), icon: '✅' },
-              { value: t('safe'), label: t('safeDesc'), icon: '🔒' },
-            ].map(({ value, label, icon }) => (
-              <div key={value} className="group">
-                <div className="text-2xl mb-1">{icon}</div>
-                <div className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">{value}</div>
-                <div className="text-sm text-gray-500 mt-0.5">{label}</div>
+              { value: '100%', label: t('freeDesc') },
+              { value: '★★★★★', label: t('honestDesc') },
+              { value: '🔒', label: t('safeDesc') },
+            ].map(({ value, label }, i) => (
+              <div key={i} className="text-center">
+                <div className="text-2xl font-bold text-white/90">{value}</div>
+                <div className="text-xs text-white/40 mt-0.5">{label}</div>
               </div>
             ))}
           </div>
         </div>
+
+        {/* Bottom fade */}
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white to-transparent" />
       </section>
 
       {/* Top Creators */}
-      <section className="py-16 bg-gradient-to-b from-slate-50 to-white">
+      <section className="py-20">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex justify-between items-end mb-10">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">{t('topRatedTitle')}</h2>
-              <p className="text-sm text-gray-500 mt-0.5">{t('topRatedSubtitle')}</p>
+              <p className="text-xs font-bold text-indigo-600 uppercase tracking-widest mb-2">{t('topRatedSubtitle')}</p>
+              <h2 className="text-3xl font-black text-gray-900 tracking-tight">{t('topRatedTitle')}</h2>
             </div>
-            <Link href="/creators" className="text-sm text-indigo-600 hover:text-indigo-700 font-medium bg-indigo-50 hover:bg-indigo-100 px-4 py-2 rounded-lg transition-colors">
-              {t('seeAll')}
+            <Link
+              href="/creators"
+              className="text-sm font-semibold text-gray-500 hover:text-gray-900 flex items-center gap-1 transition-colors"
+            >
+              {t('seeAll')} →
             </Link>
           </div>
 
           {topCreators && topCreators.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {topCreators.map((creator, i) => (
                 <Link key={creator.id} href={`/creators/${creator.slug}`}>
-                  <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all group">
+                  <div className="group relative bg-white rounded-2xl p-6 border border-gray-100 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-100/50 hover:-translate-y-1 transition-all duration-300">
+                    {/* Top ranked badge */}
+                    {i < 3 && (
+                      <div className="absolute top-4 right-4">
+                        <span className={`text-xs font-black px-2 py-0.5 rounded-lg ${
+                          i === 0 ? 'bg-yellow-100 text-yellow-700' :
+                          i === 1 ? 'bg-gray-100 text-gray-600' :
+                          'bg-orange-100 text-orange-600'
+                        }`}>
+                          #{i + 1}
+                        </span>
+                      </div>
+                    )}
+
                     <div className="flex items-center gap-4 mb-4">
-                      <div className="relative">
-                        <div className="w-12 h-12 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-xl flex items-center justify-center shadow-md">
-                          <span className="text-white font-bold text-lg">
-                            {creator.display_name[0].toUpperCase()}
-                          </span>
-                        </div>
-                        {i < 3 && (
-                          <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center text-xs font-bold text-yellow-900 shadow">
-                            {i + 1}
-                          </div>
-                        )}
+                      <div className="w-14 h-14 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-2xl flex items-center justify-center shadow-md shadow-indigo-200/50 flex-shrink-0">
+                        <span className="text-white font-black text-xl">
+                          {creator.display_name[0].toUpperCase()}
+                        </span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 truncate group-hover:text-indigo-600 transition-colors">
+                        <h3 className="font-bold text-gray-900 truncate group-hover:text-indigo-600 transition-colors">
                           {creator.display_name}
                         </h3>
                         {creator.category && (
-                          <span className="text-xs text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
+                          <span className="inline-block text-[11px] font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-full mt-0.5">
                             {creator.category}
                           </span>
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <StarRating rating={creator.average_rating} size="sm" />
-                      <span className="text-sm text-gray-600 font-medium">
-                        {creator.average_rating.toFixed(1)}
-                      </span>
-                      <span className="text-xs text-gray-400">({creator.review_count} {t('reviews')})</span>
-                    </div>
+
                     {creator.bio && (
-                      <p className="text-sm text-gray-500 mt-3 line-clamp-2 leading-relaxed">{creator.bio}</p>
+                      <p className="text-[13px] text-gray-500 line-clamp-2 leading-relaxed mb-4">{creator.bio}</p>
                     )}
+
+                    <div className="flex items-center justify-between pt-3 border-t border-gray-50">
+                      <StarRating rating={creator.average_rating} size="sm" />
+                      <div className="text-right">
+                        <span className="text-lg font-black text-gray-900">{creator.average_rating.toFixed(1)}</span>
+                        <span className="text-xs text-gray-400 ml-1">({creator.review_count} {t('reviews')})</span>
+                      </div>
+                    </div>
                   </div>
                 </Link>
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
+            <div className="text-center py-24 bg-gray-50 rounded-3xl border border-gray-100">
               <div className="text-5xl mb-4">🌟</div>
-              <p className="text-lg font-medium text-gray-700 mb-2">{t('noCreators')}</p>
-              <Link href="/signup?role=creator" className="text-indigo-600 hover:text-indigo-700 font-medium text-sm">
-                {t('beFirst')}
+              <p className="text-lg font-bold text-gray-700 mb-1">{t('noCreators')}</p>
+              <p className="text-sm text-gray-400 mb-6">{t('beFirst')}</p>
+              <Link href="/signup?role=creator" className="inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2.5 rounded-xl font-semibold text-sm hover:from-indigo-700 hover:to-purple-700 transition-all shadow-md shadow-indigo-200">
+                Opret creator profil →
               </Link>
             </div>
           )}
@@ -140,42 +161,42 @@ export default async function HomePage() {
       </section>
 
       {/* How it works */}
-      <section className="py-16 bg-white border-t border-gray-100">
+      <section className="py-20 bg-gray-50/50">
         <div className="max-w-5xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl font-bold text-gray-900">{t('howItWorks')}</h2>
-            <p className="text-gray-500 mt-2 text-sm">{t('simpleAndFree')}</p>
+          <div className="text-center mb-14">
+            <p className="text-xs font-bold text-indigo-600 uppercase tracking-widest mb-2">{t('simpleAndFree')}</p>
+            <h2 className="text-3xl font-black text-gray-900 tracking-tight">{t('howItWorks')}</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[
               {
                 role: t('asViewer'),
+                icon: '👁️',
                 color: 'indigo',
-                bg: 'bg-indigo-50',
-                border: 'border-indigo-100',
-                badge: 'bg-indigo-600',
                 steps: [t('viewerStep1'), t('viewerStep2'), t('viewerStep3'), t('viewerStep4')],
               },
               {
                 role: t('asCreator'),
+                icon: '🎬',
                 color: 'purple',
-                bg: 'bg-purple-50',
-                border: 'border-purple-100',
-                badge: 'bg-purple-600',
                 steps: [t('creatorStep1'), t('creatorStep2'), t('creatorStep3'), t('creatorStep4')],
               },
-            ].map(({ role, color, bg, border, badge, steps }) => (
-              <div key={role} className={`${bg} ${border} border rounded-2xl p-8`}>
-                <div className={`inline-flex items-center gap-2 ${badge} text-white text-xs font-semibold px-3 py-1 rounded-full mb-5`}>
-                  {role}
+            ].map(({ role, icon, color, steps }) => (
+              <div key={role} className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
+                <div className="flex items-center gap-3 mb-7">
+                  <span className="text-2xl">{icon}</span>
+                  <h3 className="font-black text-gray-900 text-lg">{role}</h3>
                 </div>
-                <ul className="space-y-4">
+                <ul className="space-y-5">
                   {steps.map((item, i) => (
-                    <li key={i} className="flex items-start gap-3 text-gray-700">
-                      <span className={`w-6 h-6 ${badge} text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5`}>
+                    <li key={i} className="flex items-start gap-4">
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0 mt-0.5 ${
+                        color === 'indigo' ? 'bg-indigo-600 text-white' : 'bg-purple-600 text-white'
+                      }`}>
                         {i + 1}
-                      </span>
-                      <span className="text-sm leading-relaxed">{item}</span>
+                      </div>
+                      <span className="text-[13px] text-gray-600 leading-relaxed pt-1">{item}</span>
                     </li>
                   ))}
                 </ul>
@@ -185,16 +206,19 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* CTA footer */}
-      <section className="bg-gradient-to-r from-indigo-600 to-purple-600 py-16 text-center">
-        <div className="max-w-2xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-white mb-3">{t('ctaTitle')}</h2>
-          <p className="text-indigo-200 mb-8">{t('ctaSubtext')}</p>
+      {/* CTA */}
+      <section className="py-24 bg-[#0a0a0f] relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/30 via-transparent to-purple-900/30" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-indigo-600/20 rounded-full blur-[100px]" />
+
+        <div className="relative max-w-2xl mx-auto px-4 text-center">
+          <h2 className="text-4xl font-black text-white mb-4 tracking-tight">{t('ctaTitle')}</h2>
+          <p className="text-white/50 mb-10 text-lg">{t('ctaSubtext')}</p>
           <Link
             href="/signup"
-            className="inline-block bg-white text-indigo-700 px-10 py-3.5 rounded-xl font-semibold hover:bg-indigo-50 transition-colors shadow-lg"
+            className="inline-block bg-white text-gray-900 px-10 py-4 rounded-xl font-bold hover:bg-gray-100 transition-all shadow-2xl shadow-black/30 text-sm"
           >
-            {t('ctaBtn')}
+            {t('ctaBtn')} →
           </Link>
         </div>
       </section>
