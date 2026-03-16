@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import Link from 'next/link'
 import ResendConfirmationsButton from './ResendConfirmationsButton'
+import FixCreatorButton from './FixCreatorButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -142,6 +143,7 @@ export default async function AdminPage() {
               </Link>
             ))}
             <ResendConfirmationsButton />
+            <FixCreatorButton />
           </div>
         </div>
       </div>
