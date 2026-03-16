@@ -50,12 +50,12 @@ async function handleCreatorSignup(supabase: ReturnType<typeof getSupabaseAdmin>
     role: 'creator',
   }).eq('id', user.id)
 
-  // Create subscription row
+  // Create subscription row (tier must be lowercase to match DB constraint)
   await supabase.from('subscriptions').insert({
     creator_id: user.id,
     stripe_subscription_id: stripeSubscriptionId,
     stripe_customer_id: stripeCustomerId,
-    tier,
+    tier: tier.toLowerCase(),
     status: 'active',
     current_period_end: periodEnd.toISOString(),
   })
