@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { validatePlatformUrls } from '@/lib/platformVerification'
-import { useTranslations } from 'next-intl'
 
 const YoutubeIcon = () => (
   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -22,17 +21,33 @@ const TiktokIcon = () => (
     <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/>
   </svg>
 )
+const CopyIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+  </svg>
+)
+const CheckIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+  </svg>
+)
 
 export default function ClaimPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params)
-  const t = useTranslations('claim')
-  const tCommon = useTranslations('common')
   const [creator, setCreator] = useState<any>(null)
   const [user, setUser] = useState<any>(null)
   const [role, setRole] = useState<string | null>(null)
+
+  // Step 1 fields
   const [youtubeUrl, setYoutubeUrl] = useState('')
   const [instagramUrl, setInstagramUrl] = useState('')
   const [tiktokUrl, setTiktokUrl] = useState('')
+
+  // Flow state
+  const [step, setStep] = useState<1 | 2>(1)
+  const [verificationCode, setVerificationCode] = useState('')
+  const [detectedPlatforms, setDetectedPlatforms] = useState<string[]>([])
+  const [copied, setCopied] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
@@ -43,7 +58,6 @@ export default function ClaimPage({ params }: { params: Promise<{ slug: string }
       if (!data || data.is_claimed) { router.push(`/creators/${slug}`); return }
       setCreator(data)
     })
-
     supabase.auth.getUser().then(async ({ data: { user } }) => {
       setUser(user)
       if (user) {
@@ -53,7 +67,15 @@ export default function ClaimPage({ params }: { params: Promise<{ slug: string }
     })
   }, [slug])
 
-  const handleClaim = async () => {
+  const detectPlatforms = (urls: { youtube: string; instagram: string; tiktok: string }) => {
+    const platforms: string[] = []
+    if (urls.youtube.trim()) platforms.push('YouTube')
+    if (urls.instagram.trim()) platforms.push('Instagram')
+    if (urls.tiktok.trim()) platforms.push('TikTok')
+    return platforms
+  }
+
+  const handleStartVerification = async () => {
     setLoading(true)
     setError('')
 
@@ -63,57 +85,97 @@ export default function ClaimPage({ params }: { params: Promise<{ slug: string }
     )
     if (platformError) { setError(platformError); setLoading(false); return }
 
-    const res = await fetch('/api/creators/claim', {
+    const res = await fetch('/api/creators/claim/start', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slug, youtube_url: youtubeUrl, instagram_url: instagramUrl, tiktok_url: tiktokUrl }),
+      body: JSON.stringify({
+        slug,
+        youtube_url: youtubeUrl,
+        instagram_url: instagramUrl,
+        tiktok_url: tiktokUrl,
+      }),
     })
-    const { error: err } = await res.json()
-    if (err) { setError(err); setLoading(false); return }
-    router.push('/dashboard')
+    const data = await res.json()
+    if (data.error) { setError(data.error); setLoading(false); return }
+
+    setVerificationCode(data.verificationCode)
+    setDetectedPlatforms(detectPlatforms({ youtube: youtubeUrl, instagram: instagramUrl, tiktok: tiktokUrl }))
+    setStep(2)
+    setLoading(false)
+  }
+
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(verificationCode)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleDone = () => {
+    router.push(`/creators/${slug}/claim/pending`)
   }
 
   if (!creator) return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/20">
-      <div className="text-gray-400">{tCommon('loading')}</div>
+      <div className="text-gray-400">Indlæser...</div>
     </div>
   )
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/20">
       <div className="max-w-lg mx-auto px-4 py-16">
+        {/* Header */}
         <div className="text-center mb-8">
           <div className="w-20 h-20 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-indigo-200">
             <span className="text-white font-bold text-3xl">{creator.display_name[0].toUpperCase()}</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">{t('areYou', { name: creator.display_name })}</h1>
-          <p className="text-gray-500 mt-2 text-sm">{t('subtitle')}</p>
+          <h1 className="text-2xl font-bold text-gray-900">Er du {creator.display_name}?</h1>
+          <p className="text-gray-500 mt-2 text-sm">Verificer dit ejerskab af profilen</p>
+        </div>
+
+        {/* Steps indicator */}
+        <div className="flex items-center justify-center gap-3 mb-8">
+          <div className={`flex items-center gap-2 text-sm font-medium ${step === 1 ? 'text-indigo-600' : 'text-green-600'}`}>
+            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${step === 1 ? 'bg-indigo-600 text-white' : 'bg-green-100 text-green-600'}`}>
+              {step === 1 ? '1' : <CheckIcon />}
+            </div>
+            Platform-links
+          </div>
+          <div className="w-8 h-px bg-gray-200" />
+          <div className={`flex items-center gap-2 text-sm font-medium ${step === 2 ? 'text-indigo-600' : 'text-gray-400'}`}>
+            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${step === 2 ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-400'}`}>
+              2
+            </div>
+            Verificer bio
+          </div>
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
           <div className="h-1 bg-gradient-to-r from-indigo-600 to-purple-600" />
           <div className="p-8">
+            {/* Not logged in */}
             {!user ? (
               <div className="text-center space-y-4">
-                <p className="text-gray-600 text-sm">{t('needCreatorAccount')}</p>
+                <p className="text-gray-600 text-sm">Du skal have en creator-konto for at overtage denne profil</p>
                 <Link
                   href={`/signup?role=creator&claim=${slug}`}
                   className="block w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 text-center shadow-lg shadow-indigo-200 transition-all"
                 >
-                  {t('createAndClaim')}
+                  Opret creator-konto og overtag
                 </Link>
                 <Link href={`/login?claim=${slug}`} className="block text-sm text-indigo-600 hover:text-indigo-700 font-medium">
-                  {t('alreadyHaveAccount')}
+                  Jeg har allerede en konto
                 </Link>
               </div>
             ) : role !== 'creator' ? (
               <div className="text-center space-y-3">
-                <p className="text-gray-600 text-sm">{t('notCreatorMsg')}</p>
+                <p className="text-gray-600 text-sm">Du skal have en creator-konto for at overtage profiler</p>
                 <Link href={`/signup?role=creator&claim=${slug}`} className="text-indigo-600 hover:text-indigo-700 font-semibold text-sm">
-                  {t('createCreatorAccount')}
+                  Opret creator-konto
                 </Link>
               </div>
-            ) : (
+
+            ) : step === 1 ? (
+              /* ── STEP 1: Platform URLs ── */
               <div className="space-y-5">
                 {error && (
                   <div className="flex items-start gap-2.5 bg-red-50 border border-red-100 text-red-700 px-4 py-3 rounded-xl text-sm">
@@ -123,31 +185,55 @@ export default function ClaimPage({ params }: { params: Promise<{ slug: string }
                     {error}
                   </div>
                 )}
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
-                  <strong>{t('warning')}</strong> {t('warningText', { name: creator.display_name })}
+
+                <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-blue-800">
+                  <strong className="block mb-1">Sådan virker det</strong>
+                  Du angiver dine platform-links. Vi genererer en unik kode, som du midlertidigt tilføjer til din bio. Admin bekræfter at koden er der og godkender overtagelsen.
                 </div>
+
                 <div>
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-                    {t('confirmOwnership')} <span className="text-red-400">*</span>
+                    Dine platform-links <span className="text-red-400">*</span>
                   </p>
-                  <p className="text-xs text-gray-400 mb-3">{t('confirmSubtext', { slug })}</p>
+                  <p className="text-xs text-gray-400 mb-3">
+                    Brugernavnet i linket skal stemme overens med profil-URL'en <strong>"{slug}"</strong>
+                  </p>
                   <div className="space-y-2">
                     <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 focus-within:ring-2 focus-within:ring-red-400 focus-within:border-transparent transition">
                       <span className="text-red-500 flex-shrink-0"><YoutubeIcon /></span>
-                      <input value={youtubeUrl} onChange={(e) => setYoutubeUrl(e.target.value)} placeholder="youtube.com/@ditnavn" type="url" className="flex-1 bg-transparent text-sm focus:outline-none placeholder:text-gray-400"/>
+                      <input
+                        value={youtubeUrl}
+                        onChange={(e) => setYoutubeUrl(e.target.value)}
+                        placeholder="youtube.com/@ditnavn"
+                        type="url"
+                        className="flex-1 bg-transparent text-sm focus:outline-none placeholder:text-gray-400"
+                      />
                     </div>
                     <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 focus-within:ring-2 focus-within:ring-pink-400 focus-within:border-transparent transition">
                       <span className="text-pink-500 flex-shrink-0"><InstagramIcon /></span>
-                      <input value={instagramUrl} onChange={(e) => setInstagramUrl(e.target.value)} placeholder="instagram.com/ditnavn" type="url" className="flex-1 bg-transparent text-sm focus:outline-none placeholder:text-gray-400"/>
+                      <input
+                        value={instagramUrl}
+                        onChange={(e) => setInstagramUrl(e.target.value)}
+                        placeholder="instagram.com/ditnavn"
+                        type="url"
+                        className="flex-1 bg-transparent text-sm focus:outline-none placeholder:text-gray-400"
+                      />
                     </div>
                     <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 focus-within:ring-2 focus-within:ring-gray-800 focus-within:border-transparent transition">
                       <span className="text-gray-800 flex-shrink-0"><TiktokIcon /></span>
-                      <input value={tiktokUrl} onChange={(e) => setTiktokUrl(e.target.value)} placeholder="tiktok.com/@ditnavn" type="url" className="flex-1 bg-transparent text-sm focus:outline-none placeholder:text-gray-400"/>
+                      <input
+                        value={tiktokUrl}
+                        onChange={(e) => setTiktokUrl(e.target.value)}
+                        placeholder="tiktok.com/@ditnavn"
+                        type="url"
+                        className="flex-1 bg-transparent text-sm focus:outline-none placeholder:text-gray-400"
+                      />
                     </div>
                   </div>
                 </div>
+
                 <button
-                  onClick={handleClaim}
+                  onClick={handleStartVerification}
                   disabled={loading}
                   className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3.5 rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 transition-all shadow-lg shadow-indigo-200 flex items-center justify-center gap-2"
                 >
@@ -157,13 +243,87 @@ export default function ClaimPage({ params }: { params: Promise<{ slug: string }
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                       </svg>
-                      {t('claiming')}
+                      Behandler...
                     </>
-                  ) : t('claimBtn')}
+                  ) : 'Start verificering →'}
                 </button>
                 <Link href={`/creators/${slug}`} className="block text-center text-sm text-gray-400 hover:text-gray-600 transition-colors">
-                  {t('cancel')}
+                  Annuller
                 </Link>
+              </div>
+
+            ) : (
+              /* ── STEP 2: Add code to bio ── */
+              <div className="space-y-5">
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h2 className="font-bold text-gray-900">Anmodning registreret</h2>
+                  <p className="text-sm text-gray-500 mt-1">Tilføj nu denne kode til din bio</p>
+                </div>
+
+                {/* The code */}
+                <div className="bg-gray-900 rounded-2xl p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-gray-400 font-medium uppercase tracking-wide">Din verifikationskode</span>
+                    <button
+                      onClick={handleCopyCode}
+                      className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-lg transition-all ${copied ? 'bg-green-500/20 text-green-400' : 'bg-white/10 text-gray-300 hover:bg-white/20'}`}
+                    >
+                      {copied ? <><CheckIcon /> Kopieret!</> : <><CopyIcon /> Kopiér</>}
+                    </button>
+                  </div>
+                  <code className="text-indigo-400 font-mono text-lg font-bold tracking-wide">{verificationCode}</code>
+                </div>
+
+                {/* Instructions per platform */}
+                <div className="space-y-2.5">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Tilføj koden til:</p>
+
+                  {detectedPlatforms.includes('YouTube') && (
+                    <div className="flex gap-3 bg-red-50 border border-red-100 rounded-xl p-3.5">
+                      <span className="text-red-500 mt-0.5 flex-shrink-0"><YoutubeIcon /></span>
+                      <div>
+                        <div className="text-sm font-semibold text-gray-800 mb-0.5">YouTube</div>
+                        <div className="text-xs text-gray-600">Gå til <strong>YouTube Studio → Tilpas kanal → Beskrivelse</strong> og indsæt koden et sted i beskrivelsen.</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {detectedPlatforms.includes('Instagram') && (
+                    <div className="flex gap-3 bg-pink-50 border border-pink-100 rounded-xl p-3.5">
+                      <span className="text-pink-500 mt-0.5 flex-shrink-0"><InstagramIcon /></span>
+                      <div>
+                        <div className="text-sm font-semibold text-gray-800 mb-0.5">Instagram</div>
+                        <div className="text-xs text-gray-600">Gå til <strong>Rediger profil → Bio</strong> og indsæt koden i din bio-tekst.</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {detectedPlatforms.includes('TikTok') && (
+                    <div className="flex gap-3 bg-gray-50 border border-gray-200 rounded-xl p-3.5">
+                      <span className="text-gray-800 mt-0.5 flex-shrink-0"><TiktokIcon /></span>
+                      <div>
+                        <div className="text-sm font-semibold text-gray-800 mb-0.5">TikTok</div>
+                        <div className="text-xs text-gray-600">Gå til <strong>Rediger profil → Bio</strong> og indsæt koden i din bio-tekst.</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5 text-xs text-amber-800">
+                  <strong>Vigtigt:</strong> Lad koden stå i din bio indtil vi har verificeret din anmodning. Du modtager en email når den er godkendt — typisk inden for 24-48 timer. Du kan fjerne koden bagefter.
+                </div>
+
+                <button
+                  onClick={handleDone}
+                  className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3.5 rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg shadow-indigo-200"
+                >
+                  Jeg har tilføjet koden ✓
+                </button>
               </div>
             )}
           </div>
