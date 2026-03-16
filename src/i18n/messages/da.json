@@ -65,7 +65,22 @@
     "asCreator": "🎬 Creator",
     "creatorInfo": "Som creator kan du oprette din profil og modtage anmeldelser fra seere.",
     "alreadyAccount": "Har du allerede en konto?",
-    "loginLink": "Log ind"
+    "loginLink": "Log ind",
+    "forgotPassword": "Glemt dit password?",
+    "forgotTitle": "Nulstil password",
+    "forgotSubtext": "Skriv din e-mail, så sender vi dig et link",
+    "forgotBtn": "Send reset-link →",
+    "forgotSending": "Sender...",
+    "forgotSuccess": "Tjek din mail! Vi har sendt dig et link til at nulstille dit password.",
+    "forgotError": "Noget gik galt. Prøv igen.",
+    "backToLogin": "← Tilbage til login",
+    "resetTitle": "Vælg nyt password",
+    "resetSubtext": "Dit nye password skal være mindst 6 tegn",
+    "newPassword": "Nyt password",
+    "resetBtn": "Gem nyt password →",
+    "resetting": "Gemmer...",
+    "resetSuccess": "Dit password er opdateret! Du bliver sendt videre...",
+    "resetError": "Noget gik galt. Prøv at anmode om et nyt link."
   },
   "creators": {
     "title": "Udforsk creators",
