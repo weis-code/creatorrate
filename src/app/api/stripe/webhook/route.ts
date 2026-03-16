@@ -44,12 +44,11 @@ async function handleCreatorSignup(supabase: ReturnType<typeof getSupabaseAdmin>
     return
   }
 
-  // Create profile row
-  await supabase.from('profiles').insert({
-    id: user.id,
+  // Update profile row — trigger already created it, ensure role + username are correct
+  await supabase.from('profiles').update({
     username: pending.username,
     role: 'creator',
-  })
+  }).eq('id', user.id)
 
   // Create subscription row
   await supabase.from('subscriptions').insert({
