@@ -1,25 +1,24 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { createClient as createAdminClient } from '@supabase/supabase-js'
+import { cookies } from 'next/headers'
+import { createClient } from '@supabase/supabase-js'
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  // Verify admin via Supabase auth
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const cookieStore = await cookies()
+  const adminAuth = cookieStore.get('admin_auth')?.value
+  const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase()
 
-  if (!user || user.email?.toLowerCase() !== process.env.ADMIN_EMAIL?.toLowerCase()) {
+  if (!adminAuth || adminAuth !== adminEmail) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const { id } = await params
 
-  // Use service role to delete auth user (cascades to profiles)
-  const adminSupabase = createAdminClient(
+  const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
-  const { error } = await adminSupabase.auth.admin.deleteUser(id)
+  const { error } = await supabase.auth.admin.deleteUser(id)
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
