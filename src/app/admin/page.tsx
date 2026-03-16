@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import Link from 'next/link'
+import ResendConfirmationsButton from './ResendConfirmationsButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -140,6 +141,7 @@ export default async function AdminPage() {
                 </svg>
               </Link>
             ))}
+            <ResendConfirmationsButton />
           </div>
         </div>
       </div>
