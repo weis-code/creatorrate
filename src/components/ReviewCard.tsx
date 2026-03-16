@@ -10,9 +10,10 @@ interface ReviewCardProps {
   review: any
   currentUserId?: string
   creatorUserId?: string
+  creatorName?: string
 }
 
-export default function ReviewCard({ review, currentUserId, creatorUserId }: ReviewCardProps) {
+export default function ReviewCard({ review, currentUserId, creatorUserId, creatorName }: ReviewCardProps) {
   const t = useTranslations('common')
   const [showDisputeForm, setShowDisputeForm] = useState(false)
   const [showReplyForm, setShowReplyForm] = useState(false)
@@ -38,6 +39,18 @@ export default function ReviewCard({ review, currentUserId, creatorUserId }: Rev
     else {
       setShowDisputeForm(false)
       router.refresh()
+      // Fire-and-forget: notify admin
+      fetch('/api/emails/dispute-created', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          creatorName: creatorName ?? 'Unknown',
+          reviewerUsername: review.viewer?.username ?? 'anonym',
+          rating: review.rating,
+          content: review.content,
+          disputeReason,
+        }),
+      }).catch(() => {})
     }
     setLoading(false)
   }

@@ -2,32 +2,18 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 
 export default function DisputeActions({ reviewId }: { reviewId: string }) {
   const [loading, setLoading] = useState<'approve' | 'reject' | null>(null)
   const router = useRouter()
-  const supabase = createClient()
 
-  const handleApprove = async () => {
-    // Approve dispute = keep review hidden (is_disputed stays true)
-    // We just remove it from the pending list by marking dispute as reviewed
-    setLoading('approve')
-    await supabase
-      .from('reviews')
-      .update({ is_disputed: true })
-      .eq('id', reviewId)
-    router.refresh()
-    setLoading(null)
-  }
-
-  const handleReject = async () => {
-    // Reject dispute = restore review (un-dispute it)
-    setLoading('reject')
-    await supabase
-      .from('reviews')
-      .update({ is_disputed: false, dispute_reason: null })
-      .eq('id', reviewId)
+  const handle = async (action: 'approve' | 'reject') => {
+    setLoading(action)
+    await fetch(`/api/admin/disputes/${reviewId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action }),
+    })
     router.refresh()
     setLoading(null)
   }
@@ -35,7 +21,7 @@ export default function DisputeActions({ reviewId }: { reviewId: string }) {
   return (
     <>
       <button
-        onClick={handleApprove}
+        onClick={() => handle('approve')}
         disabled={loading !== null}
         className="flex items-center gap-1.5 bg-green-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
       >
@@ -48,7 +34,7 @@ export default function DisputeActions({ reviewId }: { reviewId: string }) {
         Approve (hide review)
       </button>
       <button
-        onClick={handleReject}
+        onClick={() => handle('reject')}
         disabled={loading !== null}
         className="flex items-center gap-1.5 bg-white text-red-600 border border-red-200 text-sm font-medium px-4 py-2 rounded-lg hover:bg-red-50 disabled:opacity-50 transition-colors"
       >

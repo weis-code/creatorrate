@@ -201,7 +201,7 @@ export default async function CreatorPage({ params }: { params: Promise<{ slug: 
         {reviews && reviews.length > 0 ? (
           <div className="space-y-4">
             {reviews.map((review: any) => (
-              <ReviewCard key={review.id} review={review} currentUserId={user?.id} creatorUserId={creator.user_id} />
+              <ReviewCard key={review.id} review={review} currentUserId={user?.id} creatorUserId={creator.user_id} creatorName={creator.display_name} />
             ))}
           </div>
         ) : (
