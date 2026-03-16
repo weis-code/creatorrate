@@ -29,7 +29,7 @@ export async function POST() {
   for (const user of unconfirmed) {
     try {
       const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
-        type: 'signup',
+        type: 'magiclink',
         email: user.email!,
         options: {
           redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/setup`,
