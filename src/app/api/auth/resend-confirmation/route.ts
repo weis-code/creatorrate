@@ -32,7 +32,7 @@ export async function POST(req: Request) {
 
   // Generate a new confirmation link
   const { data: linkData, error } = await supabase.auth.admin.generateLink({
-    type: 'signup',
+    type: 'magiclink',
     email,
     options: {
       redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/setup`,
