@@ -56,25 +56,34 @@ export async function POST() {
       // Ensure profile is creator
       await supabase.from('profiles').update({ role: 'creator' }).eq('id', user.id)
 
-      // Check if creator row exists (subscriptions FK references creators table)
+      // Check if creator row exists (subscriptions FK references creators.id)
       const { data: creatorRow } = await supabase
         .from('creators')
         .select('id')
-        .eq('id', user.id)
+        .eq('user_id', user.id)
         .single()
 
       if (!creatorRow) {
-        // Creator hasn't completed setup yet — store subscription info on profile for now
-        results.push({
-          customer: customerEmail,
-          status: `⚠ creator-profil ikke opsat endnu (rolle sat til creator) — bed brugeren logge ind og gennemføre setup`,
+        // Create placeholder creators row so subscription FK is satisfied
+        const { data: profile } = await supabase.from('profiles').select('username').eq('id', user.id).single()
+        const username = profile?.username ?? customerEmail.split('@')[0] ?? 'creator'
+        const slug = username.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+        const { error: insertErr } = await supabase.from('creators').insert({
+          id: user.id,
+          user_id: user.id,
+          display_name: username,
+          slug,
         })
-        continue
+        if (insertErr) {
+          results.push({ customer: customerEmail, status: `creators-row fejl: ${insertErr.message}` })
+          continue
+        }
       }
 
       // Upsert subscription row
+      const creatorId = creatorRow?.id ?? user.id
       const { error } = await supabase.from('subscriptions').upsert({
-        creator_id: user.id,
+        creator_id: creatorId,
         stripe_subscription_id: sub.id,
         stripe_customer_id: customer.id,
         tier,

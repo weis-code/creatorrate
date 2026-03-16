@@ -50,6 +50,19 @@ async function handleCreatorSignup(supabase: ReturnType<typeof getSupabaseAdmin>
     role: 'creator',
   }).eq('id', user.id)
 
+  // Create placeholder creators row so subscription FK is satisfied immediately
+  // (user will fill in real details during setup — setup page will update this row)
+  const slug = pending.username.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+  const { data: existingCreator } = await supabase.from('creators').select('id').eq('user_id', user.id).single()
+  if (!existingCreator) {
+    await supabase.from('creators').insert({
+      id: user.id,
+      user_id: user.id,
+      display_name: pending.username,
+      slug,
+    })
+  }
+
   // Create subscription row (tier must be lowercase to match DB constraint)
   await supabase.from('subscriptions').insert({
     creator_id: user.id,
