@@ -29,17 +29,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Username already taken' }, { status: 400 })
   }
 
-  // Check email not already registered (via profiles or pending signups)
-  const [{ data: emailInAuth }, { data: emailPending }] = await Promise.all([
-    supabase.from('profiles').select('id').eq('email', email).maybeSingle(),
+  // Check email not already registered
+  const [{ data: { users: existingUsers } }, { data: emailPending }] = await Promise.all([
+    supabase.auth.admin.listUsers(),
     supabase.from('pending_signups').select('id').eq('email', email).maybeSingle(),
   ])
 
-  if (emailInAuth) {
-    return NextResponse.json({ error: 'Email already registered' }, { status: 400 })
+  const emailTaken = existingUsers?.some(u => u.email?.toLowerCase() === email.toLowerCase())
+  if (emailTaken) {
+    return NextResponse.json({ error: 'Der eksisterer allerede en konto med denne email' }, { status: 400 })
   }
   if (emailPending) {
-    return NextResponse.json({ error: 'A signup with this email is already in progress' }, { status: 400 })
+    return NextResponse.json({ error: 'Der er allerede en igangværende tilmelding med denne email' }, { status: 400 })
   }
 
   // Store pending signup (deleted after webhook creates user)
