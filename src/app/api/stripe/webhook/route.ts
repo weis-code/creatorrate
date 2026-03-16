@@ -35,7 +35,7 @@ async function handleCreatorSignup(supabase: ReturnType<typeof getSupabaseAdmin>
   const { data: { user }, error: createError } = await supabase.auth.admin.createUser({
     email: pending.email,
     password: pending.password,
-    email_confirm: false,
+    email_confirm: true,
     user_metadata: { username: pending.username, role: 'creator' },
   })
 
@@ -61,18 +61,9 @@ async function handleCreatorSignup(supabase: ReturnType<typeof getSupabaseAdmin>
     current_period_end: periodEnd.toISOString(),
   })
 
-  // Generate confirmation link that redirects to /dashboard/setup
-  const { data: linkData } = await supabase.auth.admin.generateLink({
-    type: 'signup',
-    email: pending.email,
-    password: pending.password,
-    options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/setup`,
-    },
-  })
-
-  // Send branded confirmation email via Resend
-  if (linkData?.properties?.action_link && process.env.RESEND_API_KEY) {
+  // Send welcome email via Resend — account is already confirmed, so they can log in immediately
+  if (process.env.RESEND_API_KEY) {
+    const loginUrl = `${process.env.NEXT_PUBLIC_APP_URL}/login`
     await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -82,7 +73,7 @@ async function handleCreatorSignup(supabase: ReturnType<typeof getSupabaseAdmin>
       body: JSON.stringify({
         from: process.env.FROM_EMAIL || 'noreply@creatorrate.io',
         to: pending.email,
-        subject: 'Bekræft din CreatorRate konto',
+        subject: 'Velkommen til CreatorRate 🎉',
         html: `
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
             <div style="background: linear-gradient(135deg, #4f46e5, #7c3aed); padding: 32px; border-radius: 16px 16px 0 0; text-align: center;">
@@ -90,14 +81,18 @@ async function handleCreatorSignup(supabase: ReturnType<typeof getSupabaseAdmin>
             </div>
             <div style="background: white; padding: 32px; border-radius: 0 0 16px 16px; border: 1px solid #e5e7eb;">
               <h2 style="color: #111827; margin-top: 0;">Hej ${pending.username}! 👋</h2>
-              <p style="color: #6b7280;">Din betaling er gennemført. Bekræft nu din konto for at komme i gang med at opsætte din creator profil.</p>
+              <p style="color: #6b7280;">Din betaling er gennemført og din konto er klar. Log ind nu for at opsætte din creator profil.</p>
+              <div style="background: #f9fafb; border-radius: 12px; padding: 16px; margin: 24px 0;">
+                <p style="margin: 0; color: #374151; font-size: 14px;"><strong>Din email:</strong> ${pending.email}</p>
+                <p style="margin: 8px 0 0; color: #374151; font-size: 14px;"><strong>Dit brugernavn:</strong> @${pending.username}</p>
+              </div>
               <div style="text-align: center; margin: 32px 0;">
-                <a href="${linkData.properties.action_link}"
+                <a href="${loginUrl}"
                    style="background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; padding: 14px 28px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 16px;">
-                  Bekræft konto og kom i gang →
+                  Log ind og kom i gang →
                 </a>
               </div>
-              <p style="color: #9ca3af; font-size: 12px; text-align: center;">Linket udløber om 24 timer.</p>
+              <p style="color: #9ca3af; font-size: 12px; text-align: center;">Brug din email og det kodeord du valgte ved oprettelsen.</p>
             </div>
           </div>
         `,
