@@ -111,8 +111,11 @@ export async function POST(req: Request) {
   try {
     event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
   } catch (err: any) {
+    console.error('[Stripe Webhook] Signature verification failed:', err.message)
     return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 })
   }
+
+  console.log('[Stripe Webhook] Event received:', event.type)
 
   const supabase = getSupabaseAdmin()
 
@@ -120,11 +123,14 @@ export async function POST(req: Request) {
     const session = event.data.object as Stripe.Checkout.Session
     const { pending_id, tier, creator_id } = session.metadata ?? {}
 
+    console.log('[Stripe Webhook] checkout.session.completed — metadata:', { pending_id, tier, creator_id })
+
     const subscription = await stripe.subscriptions.retrieve(session.subscription as string)
     const periodEnd = getSubscriptionPeriodEnd(subscription)
 
     if (pending_id) {
       // New creator signup flow: create user from pending signup
+      console.log('[Stripe Webhook] Processing new creator signup for pending_id:', pending_id)
       await handleCreatorSignup(
         supabase,
         pending_id,
