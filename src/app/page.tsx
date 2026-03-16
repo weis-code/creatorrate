@@ -46,18 +46,12 @@ export default async function HomePage() {
               {t('subtext')}
             </p>
 
-            <div className="flex gap-3 justify-center flex-wrap mb-16">
+            <div className="flex justify-center mb-16">
               <Link
                 href="/creators"
-                className="bg-white text-gray-900 px-7 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-all shadow-lg text-sm"
+                className="bg-white text-gray-900 px-10 py-3.5 rounded-xl font-semibold hover:bg-gray-100 transition-all shadow-lg text-sm"
               >
-                {t('exploreBtn')}
-              </Link>
-              <Link
-                href="/signup?role=creator"
-                className="border border-white/10 bg-white/5 text-white/80 px-7 py-3 rounded-xl font-semibold hover:bg-white/10 hover:border-white/20 transition-all text-sm"
-              >
-                {t('becomeCreatorBtn')} →
+                {t('exploreBtn')} →
               </Link>
             </div>
 
