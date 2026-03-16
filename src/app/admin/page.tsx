@@ -4,6 +4,7 @@ import Link from 'next/link'
 import ResendConfirmationsButton from './ResendConfirmationsButton'
 import FixCreatorButton from './FixCreatorButton'
 import SendPasswordResetButton from './SendPasswordResetButton'
+import SyncStripeButton from './SyncStripeButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -143,6 +144,7 @@ export default async function AdminPage() {
                 </svg>
               </Link>
             ))}
+            <SyncStripeButton />
             <ResendConfirmationsButton />
             <FixCreatorButton />
             <SendPasswordResetButton />
