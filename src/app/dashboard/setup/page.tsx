@@ -131,19 +131,8 @@ function SetupPage() {
       .single()
 
     if (existing && !existing.is_claimed) {
-      const res = await fetch('/api/creators/claim', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          slug: form.slug,
-          youtube_url: form.youtube_url,
-          instagram_url: form.instagram_url,
-          tiktok_url: form.tiktok_url,
-        }),
-      })
-      const { error: claimError } = await res.json()
-      if (claimError) { setError(claimError); setLoading(false); return }
-      router.push('/dashboard')
+      // Redirect to the proper claim flow for this slug
+      router.push(`/creators/${form.slug}/claim`)
       return
     }
 

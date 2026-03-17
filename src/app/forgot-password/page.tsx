@@ -1,13 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
+import { useSearchParams } from 'next/navigation'
 
-export default function ForgotPasswordPage() {
+function ForgotPasswordPage() {
   const t = useTranslations('auth')
+  const searchParams = useSearchParams()
+  const linkExpired = searchParams.get('error') === 'invalid_link'
   const [email, setEmail] = useState('')
-  const [state, setState] = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
+  const [state, setState] = useState<'idle' | 'loading' | 'done' | 'error'>(linkExpired ? 'error' : 'idle')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -54,11 +57,13 @@ export default function ForgotPasswordPage() {
             ) : (
               <form onSubmit={handleSubmit} className="space-y-5">
                 {state === 'error' && (
-                  <div className="flex items-center gap-2.5 bg-red-50 border border-red-100 text-red-700 px-4 py-3 rounded-xl text-sm">
-                    <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="flex items-start gap-2.5 bg-red-50 border border-red-100 text-red-700 px-4 py-3 rounded-xl text-sm">
+                    <svg className="w-4 h-4 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/>
                     </svg>
-                    {t('forgotError')}
+                    {linkExpired
+                      ? 'Dit reset-link er udløbet eller ugyldigt. Anmod om et nyt herunder.'
+                      : t('forgotError')}
                   </div>
                 )}
                 <div>
@@ -99,5 +104,13 @@ export default function ForgotPasswordPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ForgotPasswordPageWrapper() {
+  return (
+    <Suspense fallback={null}>
+      <ForgotPasswordPage />
+    </Suspense>
   )
 }

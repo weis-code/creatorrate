@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import StarRating from '@/components/StarRating'
 import { getTranslations } from 'next-intl/server'
+import SetupNudgeModal from './SetupNudgeModal'
 
 export const dynamic = 'force-dynamic'
 
@@ -42,8 +43,13 @@ export default async function DashboardPage() {
     { value: disputedReviews.length, label: t('disputed'), icon: '⚠️', color: 'from-orange-400 to-orange-500' },
   ]
 
+  const hasOnePlatformLink = !!(creator.youtube_url || creator.instagram_url || creator.tiktok_url)
+  const profileIncomplete = !creator.bio || !hasOnePlatformLink
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+      {/* Setup nudge modal — shown until profile is complete */}
+      {profileIncomplete && <SetupNudgeModal />}
       {/* Top banner */}
       <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-8">
         <div className="max-w-6xl mx-auto flex justify-between items-center">

@@ -31,7 +31,9 @@ export default async function AdminPage() {
   ])
 
   const activeCount = subscriptions?.filter(s => s.status === 'active').length ?? 0
-  const revenue = activeCount * 99 // rough estimate
+  const activeBasic = subscriptions?.filter(s => s.status === 'active' && s.tier === 'basic').length ?? 0
+  const activePro = subscriptions?.filter(s => s.status === 'active' && s.tier === 'pro').length ?? 0
+  const revenue = activeBasic * 99 + activePro * 199 // rough estimate
 
   const stats = [
     { label: 'Brugere', value: totalUsers ?? 0, icon: '👥', color: 'from-blue-500 to-blue-600', change: '+2 i dag' },
@@ -80,12 +82,12 @@ export default async function AdminPage() {
         </div>
         <div className="mt-4 pt-4 border-t border-gray-50 flex gap-6">
           <div>
-            <div className="text-sm font-bold text-gray-900">{subscriptions?.filter(s => s.status === 'active' && s.tier === 'BASIC').length ?? 0}</div>
+            <div className="text-sm font-bold text-gray-900">{activeBasic}</div>
             <div className="text-xs text-gray-400">Basic</div>
           </div>
           <div className="w-px bg-gray-100" />
           <div>
-            <div className="text-sm font-bold text-gray-900">{subscriptions?.filter(s => s.status === 'active' && s.tier === 'PRO').length ?? 0}</div>
+            <div className="text-sm font-bold text-gray-900">{activePro}</div>
             <div className="text-xs text-gray-400">Pro</div>
           </div>
         </div>

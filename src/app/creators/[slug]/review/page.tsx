@@ -16,6 +16,7 @@ export default function WriteReviewPage({ params }: { params: Promise<{ slug: st
   const [creator, setCreator] = useState<any>(null)
   const [rating, setRating] = useState(0)
   const [content, setContent] = useState('')
+  const [platform, setPlatform] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
@@ -45,6 +46,7 @@ export default function WriteReviewPage({ params }: { params: Promise<{ slug: st
       viewer_id: user.id,
       rating,
       content,
+      platform: platform || null,
     })
 
     if (error) {
@@ -119,6 +121,36 @@ export default function WriteReviewPage({ params }: { params: Promise<{ slug: st
                     {rating === 0 ? <span className="text-gray-400 font-normal">{t('clickStars')}</span> : ratingLabels[rating]}
                   </p>
                 </div>
+              </div>
+
+              {/* Platform */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">{t('platform')}</label>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { value: 'YouTube',   label: 'YouTube',   emoji: '▶️' },
+                    { value: 'TikTok',    label: 'TikTok',    emoji: '🎵' },
+                    { value: 'Instagram', label: 'Instagram', emoji: '📸' },
+                    { value: 'Twitch',    label: 'Twitch',    emoji: '🟣' },
+                    { value: 'Podcast',   label: 'Podcast',   emoji: '🎙️' },
+                    { value: 'Andet',     label: t('platformOther'), emoji: '🌐' },
+                  ].map(({ value, label, emoji }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setPlatform(platform === value ? '' : value)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
+                        platform === value
+                          ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                          : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50'
+                      }`}
+                    >
+                      <span>{emoji}</span>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-gray-400 mt-1.5">{t('platformHint')}</p>
               </div>
 
               {/* Text */}

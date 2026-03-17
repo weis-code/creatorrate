@@ -119,7 +119,20 @@ export default function ReviewCard({ review, currentUserId, creatorUserId, creat
             </span>
           </div>
           <div>
-            <div className="font-medium text-gray-900 text-sm">{review.viewer?.username ?? 'Anonym'}</div>
+            <div className="flex items-center gap-2">
+              <div className="font-medium text-gray-900 text-sm">{review.viewer?.username ?? 'Anonym'}</div>
+              {review.platform && (
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
+                  {review.platform === 'YouTube'   && '▶️'}
+                  {review.platform === 'TikTok'    && '🎵'}
+                  {review.platform === 'Instagram' && '📸'}
+                  {review.platform === 'Twitch'    && '🟣'}
+                  {review.platform === 'Podcast'   && '🎙️'}
+                  {review.platform === 'Andet'     && '🌐'}
+                  {' '}{review.platform}
+                </span>
+              )}
+            </div>
             <div className="text-xs text-gray-400">
               {new Date(review.created_at).toLocaleDateString('da-DK', { day: 'numeric', month: 'long', year: 'numeric' })}
             </div>
