@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server'
+import { notifySlack } from '@/lib/slack'
 
 export async function POST(req: Request) {
-  if (!process.env.RESEND_API_KEY || !process.env.ADMIN_EMAIL) {
-    return NextResponse.json({ success: true, skipped: true })
-  }
-
   const {
     creatorName,
     creatorSlug,
@@ -14,6 +11,15 @@ export async function POST(req: Request) {
     instagramUrl,
     tiktokUrl,
   } = await req.json()
+
+  // Slack notification (always)
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://creatorrate.io'
+  const links = [youtubeUrl, instagramUrl, tiktokUrl].filter(Boolean).join(' | ')
+  notifySlack(`🔑 *Ny claim-anmodning*\n@${claimantUsername} vil overtage *${creatorName}*\nKode: \`${verificationCode}\`${links ? `\nLinks: ${links}` : ''}\n${appUrl}/admin/claims`)
+
+  if (!process.env.RESEND_API_KEY || !process.env.ADMIN_EMAIL) {
+    return NextResponse.json({ success: true, skipped: true })
+  }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://creatorrate.io'
 

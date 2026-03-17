@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { createClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
+import { notifySlack } from '@/lib/slack'
 
 function getSupabaseAdmin() {
   return createClient(
@@ -112,6 +113,9 @@ async function handleCreatorSignup(supabase: ReturnType<typeof getSupabaseAdmin>
       }),
     }).catch(console.error)
   }
+
+  // Slack notification
+  notifySlack(`🎉 *Ny creator tilmeldt*\n@${pending.username} (${pending.email}) — plan: *${tier}*`)
 
   // Delete pending signup
   await supabase.from('pending_signups').delete().eq('id', pendingId)
