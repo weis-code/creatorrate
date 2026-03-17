@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { resend, FROM_EMAIL, welcomeCreatorEmail, welcomeViewerEmail } from '@/lib/email'
+import { notifySlack } from '@/lib/slack'
 
 export async function POST(req: Request) {
   try {
@@ -8,6 +9,10 @@ export async function POST(req: Request) {
     if (!email || !username) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
+
+    // Slack notification (always)
+    const emoji = role === 'creator' ? '🎬' : '👤'
+    notifySlack(`${emoji} *Ny ${role === 'creator' ? 'creator' : 'seer'} oprettet*\n@${username} (${email})`)
 
     // Don't send emails if RESEND_API_KEY is not configured
     if (!process.env.RESEND_API_KEY) {
