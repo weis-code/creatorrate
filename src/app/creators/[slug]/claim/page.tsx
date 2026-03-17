@@ -55,7 +55,11 @@ export default function ClaimPage({ params }: { params: Promise<{ slug: string }
 
   useEffect(() => {
     supabase.from('creators').select('*').eq('slug', slug).single().then(({ data }) => {
-      if (!data || data.is_claimed) { router.push(`/creators/${slug}`); return }
+      // Redirect if profile doesn't exist, is already claimed, or already has an owner
+      if (!data || data.is_claimed || (data.user_id && data.user_id !== user?.id)) {
+        router.push(`/creators/${slug}`)
+        return
+      }
       setCreator(data)
     })
     supabase.auth.getUser().then(async ({ data: { user } }) => {

@@ -60,6 +60,7 @@ async function handleCreatorSignup(supabase: ReturnType<typeof getSupabaseAdmin>
       user_id: user.id,
       display_name: pending.username,
       slug,
+      is_claimed: true,
     })
   }
 

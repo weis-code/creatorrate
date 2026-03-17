@@ -55,12 +55,16 @@ export async function POST(req: Request) {
     // Fetch creator to check it exists and isn't already claimed
     const { data: creator } = await adminSupabase
       .from('creators')
-      .select('id, is_claimed, claim_status, display_name')
+      .select('id, is_claimed, claim_status, display_name, user_id')
       .eq('slug', slug)
       .single()
 
     if (!creator) return NextResponse.json({ error: 'Profilen findes ikke' }, { status: 404 })
     if (creator.is_claimed) return NextResponse.json({ error: 'Profilen er allerede overtaget' }, { status: 400 })
+    // Also block if user_id is set — profile is owned even if is_claimed flag wasn't set
+    if (creator.user_id && creator.user_id !== user.id) {
+      return NextResponse.json({ error: 'Profilen tilhører allerede en anden bruger' }, { status: 400 })
+    }
     if (creator.claim_status === 'pending') {
       return NextResponse.json({ error: 'Der er allerede en anmodning under behandling for denne profil' }, { status: 400 })
     }
