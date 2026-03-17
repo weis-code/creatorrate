@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import StarRating from '@/components/StarRating'
 import CreatePlaceholderButton from '@/components/CreatePlaceholderButton'
+import CreatorAvatar from '@/components/CreatorAvatar'
 import { getTranslations } from 'next-intl/server'
 
 export const dynamic = 'force-dynamic'
@@ -105,11 +106,7 @@ export default async function CreatorsPage({ searchParams }: { searchParams: Pro
                 <Link key={creator.id} href={`/creators/${creator.slug}`}>
                   <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all group">
                     <div className="flex items-start gap-4">
-                      <div className="w-14 h-14 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
-                        <span className="text-white font-bold text-xl">
-                          {creator.display_name[0].toUpperCase()}
-                        </span>
-                      </div>
+                      <CreatorAvatar displayName={creator.display_name} avatarUrl={creator.avatar_url} size="md" />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
                           <h3 className="font-semibold text-gray-900 truncate group-hover:text-indigo-600 transition-colors">

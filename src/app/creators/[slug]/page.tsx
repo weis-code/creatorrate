@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import StarRating from '@/components/StarRating'
 import ReviewCard from '@/components/ReviewCard'
 import WriteReviewButton from '@/components/WriteReviewButton'
+import CreatorAvatar from '@/components/CreatorAvatar'
 import { getTranslations } from 'next-intl/server'
 
 export const dynamic = 'force-dynamic'
@@ -106,10 +107,8 @@ export default async function CreatorPage({ params }: { params: Promise<{ slug: 
 
           <div className="px-8 pb-8">
             <div className="flex items-end justify-between -mt-12 mb-5">
-              <div className="w-20 h-20 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-2xl flex items-center justify-center ring-4 ring-white shadow-lg">
-                <span className="text-white font-bold text-3xl">
-                  {creator.display_name[0].toUpperCase()}
-                </span>
+              <div className="ring-4 ring-white rounded-2xl shadow-lg">
+                <CreatorAvatar displayName={creator.display_name} avatarUrl={creator.avatar_url} size="xl" />
               </div>
               {!userReview && userProfile?.role !== 'creator' && (
                 <WriteReviewButton creatorId={creator.id} creatorSlug={slug} />
