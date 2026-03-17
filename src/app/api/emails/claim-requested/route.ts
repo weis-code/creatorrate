@@ -21,8 +21,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, skipped: true })
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://creatorrate.io'
-
   const platformLinks = [
     youtubeUrl && `<a href="${youtubeUrl}" style="color:#6366f1">YouTube →</a>`,
     instagramUrl && `<a href="${instagramUrl}" style="color:#ec4899">Instagram →</a>`,
