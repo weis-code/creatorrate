@@ -20,9 +20,12 @@ export async function POST(req: NextRequest) {
   const user = users.users.find(u => u.email === email)
   if (!user) return NextResponse.json({ error: 'Ingen bruger fundet med den email' }, { status: 404 })
 
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.creatorrate.io'
+
   const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
     type: 'recovery',
     email,
+    options: { redirectTo: `${appUrl}/reset-password` },
   })
   if (linkError) return NextResponse.json({ error: linkError.message }, { status: 500 })
 

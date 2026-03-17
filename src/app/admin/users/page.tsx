@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import DeleteUserButton from './DeleteUserButton'
+import SetPasswordButton from './SetPasswordButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -96,7 +97,10 @@ export default async function UsersPage() {
                     {new Date(user.created_at).toLocaleDateString('da-DK', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <DeleteUserButton userId={user.id} username={user.username ?? user.id} />
+                    <div className="flex items-center justify-end gap-2">
+                      <SetPasswordButton userId={user.id} username={user.username ?? ''} />
+                      <DeleteUserButton userId={user.id} username={user.username ?? user.id} />
+                    </div>
                   </td>
                 </tr>
               )
