@@ -5,6 +5,16 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
+import StarRating from '@/components/StarRating'
+
+const PLATFORMS = [
+  { value: 'YouTube',   emoji: '▶️' },
+  { value: 'TikTok',    emoji: '🎵' },
+  { value: 'Instagram', emoji: '📸' },
+  { value: 'Twitch',    emoji: '🟣' },
+  { value: 'Podcast',   emoji: '🎙️' },
+  { value: 'Andet',     emoji: '🌐' },
+]
 
 export default function ProfilePage() {
   const t = useTranslations('profile')
@@ -17,6 +27,14 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
+
+  // Reviews
+  const [reviews, setReviews] = useState<any[]>([])
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editForm, setEditForm] = useState({ rating: 0, content: '', platform: '' })
+  const [editLoading, setEditLoading] = useState(false)
+  const [editError, setEditError] = useState('')
+
   const router = useRouter()
   const supabase = createClient()
 
@@ -39,6 +57,13 @@ export default function ProfilePage() {
           })
         }
       }
+      // Fetch reviews written by this user
+      const { data: reviewData } = await supabase
+        .from('reviews')
+        .select('*, creator:creators(display_name, slug)')
+        .eq('viewer_id', user.id)
+        .order('created_at', { ascending: false })
+      setReviews(reviewData ?? [])
     })
   }, [])
 
@@ -77,6 +102,40 @@ export default function ProfilePage() {
     setLoading(false)
   }
 
+  const startEdit = (review: any) => {
+    setEditingId(review.id)
+    setEditForm({ rating: review.rating, content: review.content, platform: review.platform ?? '' })
+    setEditError('')
+  }
+
+  const handleEditSave = async (reviewId: string) => {
+    if (editForm.rating === 0) { setEditError('Vælg en rating'); return }
+    if (editForm.content.trim().length < 10) { setEditError('Anmeldelsen skal være mindst 10 tegn'); return }
+    setEditLoading(true)
+    setEditError('')
+
+    const { error } = await supabase
+      .from('reviews')
+      .update({
+        rating: editForm.rating,
+        content: editForm.content.trim(),
+        platform: editForm.platform || null,
+      })
+      .eq('id', reviewId)
+      .eq('viewer_id', profile.id)
+
+    if (error) {
+      setEditError('Kunne ikke gemme: ' + error.message)
+    } else {
+      setReviews(prev => prev.map(r => r.id === reviewId
+        ? { ...r, rating: editForm.rating, content: editForm.content.trim(), platform: editForm.platform || null }
+        : r
+      ))
+      setEditingId(null)
+    }
+    setEditLoading(false)
+  }
+
   if (!profile) return (
     <div className="flex items-center justify-center min-h-64">
       <div className="text-gray-400">{tCommon('loading')}</div>
@@ -109,6 +168,7 @@ export default function ProfilePage() {
       </div>
 
       <div className="max-w-xl mx-auto px-4 -mt-4 pb-16 space-y-4">
+        {/* Profile form */}
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
           <form onSubmit={handleSubmit}>
             <div className="p-6 space-y-5">
@@ -251,6 +311,140 @@ export default function ProfilePage() {
               </button>
             </div>
           </form>
+        </div>
+
+        {/* Reviews written by this user */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between px-1">
+            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+              Dine anmeldelser {reviews.length > 0 && <span className="text-indigo-500">({reviews.length})</span>}
+            </h2>
+          </div>
+
+          {reviews.length === 0 ? (
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 text-center">
+              <p className="text-gray-400 text-sm">Du har ikke skrevet nogen anmeldelser endnu.</p>
+              <Link href="/creators" className="inline-block mt-3 text-sm text-indigo-600 hover:text-indigo-700 font-medium">
+                Find en creator →
+              </Link>
+            </div>
+          ) : (
+            reviews.map((review) => (
+              <div key={review.id} className={`bg-white rounded-2xl border shadow-sm overflow-hidden ${review.is_disputed ? 'border-orange-200' : 'border-gray-100'}`}>
+                {/* Review header */}
+                <div className="px-5 pt-4 pb-3 flex items-start justify-between">
+                  <div>
+                    <Link
+                      href={`/creators/${review.creator?.slug}`}
+                      className="text-sm font-semibold text-gray-900 hover:text-indigo-600 transition-colors"
+                    >
+                      {review.creator?.display_name ?? 'Ukendt creator'}
+                    </Link>
+                    <div className="flex items-center gap-2 mt-1">
+                      <StarRating rating={review.rating} size="sm" />
+                      {review.platform && (
+                        <span className="text-[11px] text-gray-400">
+                          {PLATFORMS.find(p => p.value === review.platform)?.emoji} {review.platform}
+                        </span>
+                      )}
+                      <span className="text-[11px] text-gray-400">
+                        {new Date(review.created_at).toLocaleDateString('da-DK', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {review.is_disputed && (
+                      <span className="text-xs text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full">Under behandling</span>
+                    )}
+                    {!review.is_disputed && editingId !== review.id && (
+                      <button
+                        onClick={() => startEdit(review)}
+                        className="text-xs text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1 px-2.5 py-1 rounded-lg hover:bg-indigo-50 transition"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Rediger
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {editingId === review.id ? (
+                  /* Edit form */
+                  <div className="px-5 pb-5 space-y-4 border-t border-gray-100 pt-4">
+                    {editError && (
+                      <p className="text-xs text-red-600 bg-red-50 px-3 py-2 rounded-lg">{editError}</p>
+                    )}
+                    {/* Rating */}
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Rating</label>
+                      <StarRating rating={editForm.rating} interactive onRate={(r) => setEditForm(f => ({ ...f, rating: r }))} size="md" />
+                    </div>
+                    {/* Platform */}
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Platform</label>
+                      <div className="flex flex-wrap gap-1.5">
+                        {PLATFORMS.map(({ value, emoji }) => (
+                          <button
+                            key={value}
+                            type="button"
+                            onClick={() => setEditForm(f => ({ ...f, platform: f.platform === value ? '' : value }))}
+                            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${
+                              editForm.platform === value
+                                ? 'bg-indigo-600 text-white border-indigo-600'
+                                : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-indigo-300'
+                            }`}
+                          >
+                            {emoji} {value}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    {/* Content */}
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Anmeldelse</label>
+                      <textarea
+                        value={editForm.content}
+                        onChange={(e) => setEditForm(f => ({ ...f, content: e.target.value }))}
+                        className="w-full border border-gray-200 rounded-xl px-3.5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition min-h-24 resize-none bg-gray-50"
+                        minLength={10}
+                      />
+                      <p className="text-xs text-gray-400 mt-1">{editForm.content.length} tegn</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEditSave(review.id)}
+                        disabled={editLoading}
+                        className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-indigo-700 disabled:opacity-50 transition flex items-center gap-1.5"
+                      >
+                        {editLoading ? (
+                          <svg className="animate-spin w-3.5 h-3.5" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                          </svg>
+                        ) : (
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                        Gem ændringer
+                      </button>
+                      <button
+                        onClick={() => { setEditingId(null); setEditError('') }}
+                        className="px-4 py-2 rounded-xl text-xs font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition"
+                      >
+                        Annuller
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* Review content */
+                  <p className="px-5 pb-4 text-sm text-gray-700 leading-relaxed">{review.content}</p>
+                )}
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>
