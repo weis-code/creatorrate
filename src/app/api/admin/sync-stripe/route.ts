@@ -57,26 +57,52 @@ export async function POST() {
       await supabase.from('profiles').update({ role: 'creator' }).eq('id', user.id)
 
       // Check if creator row exists (subscriptions FK references creators.id)
-      const { data: creatorRow } = await supabase
+      let { data: creatorRow } = await supabase
         .from('creators')
         .select('id')
         .eq('user_id', user.id)
-        .single()
+        .maybeSingle()
 
       if (!creatorRow) {
-        // Create placeholder creators row so subscription FK is satisfied
         const { data: profile } = await supabase.from('profiles').select('username').eq('id', user.id).single()
         const username = profile?.username ?? customerEmail.split('@')[0] ?? 'creator'
-        const slug = username.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-        const { error: insertErr } = await supabase.from('creators').insert({
-          id: user.id,
-          user_id: user.id,
-          display_name: username,
-          slug,
-        })
-        if (insertErr) {
-          results.push({ customer: customerEmail, status: `creators-row fejl: ${insertErr.message}` })
-          continue
+        const baseSlug = username.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+
+        // Check if there's an unclaimed placeholder with same slug — take it over
+        const { data: unclaimedProfile } = await supabase
+          .from('creators')
+          .select('id')
+          .eq('slug', baseSlug)
+          .is('user_id', null)
+          .maybeSingle()
+
+        if (unclaimedProfile) {
+          await supabase.from('creators').update({
+            user_id: user.id,
+            display_name: username,
+            is_claimed: true,
+          }).eq('id', unclaimedProfile.id)
+          creatorRow = unclaimedProfile
+        } else {
+          // No unclaimed profile — insert new row with unique slug
+          let slug = baseSlug
+          let slugCounter = 1
+          while (true) {
+            const { data: slugConflict } = await supabase.from('creators').select('id').eq('slug', slug).maybeSingle()
+            if (!slugConflict) break
+            slug = `${baseSlug}-${slugCounter++}`
+          }
+          const { error: insertErr } = await supabase.from('creators').insert({
+            id: user.id,
+            user_id: user.id,
+            display_name: username,
+            slug,
+            is_claimed: true,
+          })
+          if (insertErr) {
+            results.push({ customer: customerEmail, status: `creators-row fejl: ${insertErr.message}` })
+            continue
+          }
         }
       }
 
