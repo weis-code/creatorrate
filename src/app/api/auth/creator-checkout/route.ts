@@ -10,6 +10,7 @@ function getSupabaseAdmin() {
 }
 
 export async function POST(req: Request) {
+  try {
   const { email, username, password, tier } = await req.json()
 
   if (!email || !username || !password || !tier) {
@@ -30,17 +31,22 @@ export async function POST(req: Request) {
   }
 
   // Check email not already registered
-  const [{ data: { users: existingUsers } }, { data: emailPending }] = await Promise.all([
-    supabase.auth.admin.listUsers(),
-    supabase.from('pending_signups').select('id').eq('email', email).maybeSingle(),
-  ])
+  const { data: emailPending } = await supabase
+    .from('pending_signups')
+    .select('id')
+    .eq('email', email)
+    .maybeSingle()
 
-  const emailTaken = existingUsers?.some(u => u.email?.toLowerCase() === email.toLowerCase())
-  if (emailTaken) {
-    return NextResponse.json({ error: 'Der eksisterer allerede en konto med denne email' }, { status: 400 })
-  }
   if (emailPending) {
     return NextResponse.json({ error: 'Der er allerede en igangværende tilmelding med denne email' }, { status: 400 })
+  }
+
+  // Check auth.users directly via service role (avoids slow listUsers pagination)
+  const { data: authUsers } = await supabase
+    .rpc('check_email_in_auth', { check_email: email.toLowerCase() })
+
+  if (authUsers) {
+    return NextResponse.json({ error: 'Der eksisterer allerede en konto med denne email' }, { status: 400 })
   }
 
   // Store pending signup (deleted after webhook creates user)
@@ -73,4 +79,8 @@ export async function POST(req: Request) {
   })
 
   return NextResponse.json({ url: session.url })
+  } catch (err: any) {
+    console.error('[creator-checkout] error:', err)
+    return NextResponse.json({ error: err.message || 'Noget gik galt' }, { status: 500 })
+  }
 }
