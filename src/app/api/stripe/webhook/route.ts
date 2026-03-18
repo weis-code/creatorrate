@@ -51,23 +51,54 @@ async function handleCreatorSignup(supabase: ReturnType<typeof getSupabaseAdmin>
     role: 'creator',
   }).eq('id', user.id)
 
-  // Create placeholder creators row so subscription FK is satisfied immediately
-  // (user will fill in real details during setup — setup page will update this row)
-  const slug = pending.username.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-  const { data: existingCreator } = await supabase.from('creators').select('id').eq('user_id', user.id).single()
-  if (!existingCreator) {
-    await supabase.from('creators').insert({
-      id: user.id,
+  // Link creator to their profile — take over an unclaimed placeholder if one exists with same slug,
+  // otherwise create a new one. This allows viewers to create profiles before the creator signs up.
+  const baseSlug = pending.username.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+
+  let creatorId: string = user.id
+
+  const { data: unclaimedProfile } = await supabase
+    .from('creators')
+    .select('id')
+    .eq('slug', baseSlug)
+    .is('user_id', null)
+    .maybeSingle()
+
+  if (unclaimedProfile) {
+    // Take over the existing unclaimed profile — preserve all reviews on it
+    await supabase.from('creators').update({
       user_id: user.id,
       display_name: pending.username,
-      slug,
       is_claimed: true,
-    })
+    }).eq('id', unclaimedProfile.id)
+    creatorId = unclaimedProfile.id
+  } else {
+    // No placeholder exists — check if this user already has a creator row
+    const { data: existingCreator } = await supabase.from('creators').select('id').eq('user_id', user.id).maybeSingle()
+    if (!existingCreator) {
+      // Generate unique slug in case another claimed creator has same username
+      let slug = baseSlug
+      let slugCounter = 1
+      while (true) {
+        const { data: slugConflict } = await supabase.from('creators').select('id').eq('slug', slug).maybeSingle()
+        if (!slugConflict) break
+        slug = `${baseSlug}-${slugCounter++}`
+      }
+      await supabase.from('creators').insert({
+        id: user.id,
+        user_id: user.id,
+        display_name: pending.username,
+        slug,
+        is_claimed: true,
+      })
+    } else {
+      creatorId = existingCreator.id
+    }
   }
 
   // Create subscription row (tier must be lowercase to match DB constraint)
   await supabase.from('subscriptions').insert({
-    creator_id: user.id,
+    creator_id: creatorId,
     stripe_subscription_id: stripeSubscriptionId,
     stripe_customer_id: stripeCustomerId,
     tier: tier.toLowerCase(),
