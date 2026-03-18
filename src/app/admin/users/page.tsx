@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 export default async function UsersPage() {
   const supabase = createAdminClient()
 
-  const [{ data: users }, { data: subscriptions }] = await Promise.all([
+  const [{ data: users }, { data: subscriptions }, { data: creatorRows }] = await Promise.all([
     supabase
       .from('profiles')
       .select('id, email, username, role, created_at')
@@ -16,10 +16,19 @@ export default async function UsersPage() {
     supabase
       .from('subscriptions')
       .select('creator_id, tier, status'),
+    supabase
+      .from('creators')
+      .select('id, user_id'),
   ])
 
-  // Build a map of creator_id → subscription
-  const subMap = new Map(subscriptions?.map(s => [s.creator_id, s]) ?? [])
+  // Map creator_id → subscription
+  const subByCreatorId = new Map(subscriptions?.map(s => [s.creator_id, s]) ?? [])
+  // Map user_id → creator_id (handles unclaimed profile takeovers where creator.id ≠ user.id)
+  const creatorIdByUserId = new Map(creatorRows?.filter(c => c.user_id).map(c => [c.user_id, c.id]) ?? [])
+  // Final map: user.id → subscription
+  const subMap = new Map(
+    [...creatorIdByUserId.entries()].map(([userId, creatorId]) => [userId, subByCreatorId.get(creatorId)])
+  )
 
   const creators = users?.filter(u => u.role === 'creator').length ?? 0
   const viewers = users?.filter(u => u.role === 'viewer').length ?? 0
