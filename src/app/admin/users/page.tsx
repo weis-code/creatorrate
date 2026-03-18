@@ -11,8 +11,7 @@ export default async function UsersPage() {
     supabase
       .from('profiles')
       .select('id, email, username, role, created_at')
-      .order('created_at', { ascending: false })
-      .limit(200),
+      .order('created_at', { ascending: false }),
     supabase
       .from('subscriptions')
       .select('creator_id, tier, status'),
