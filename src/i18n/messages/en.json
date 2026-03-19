@@ -80,7 +80,22 @@
     "resetBtn": "Save new password →",
     "resetting": "Saving...",
     "resetSuccess": "Your password has been updated! Redirecting...",
-    "resetError": "Something went wrong. Please request a new link."
+    "resetError": "Something went wrong. Please request a new link.",
+    "planTitle": "Choose your subscription",
+    "planSubtitle": "You can always change plan later.",
+    "trialBanner": "First 30 days are free",
+    "trialSubtext": "No commitment — cancel anytime",
+    "popularBadge": "Popular",
+    "basicDesc": "Reply to reviews older than 1 month",
+    "proDesc": "Reply to all reviews immediately",
+    "basicFeature1": "Reply to older reviews",
+    "featureProfile": "Creator profile",
+    "featureDispute": "Dispute reviews",
+    "proFeature1": "Reply to all reviews",
+    "prioritySupport": "Priority support",
+    "goToPayment": "Go to payment — {price} kr/mo",
+    "sendingToPayment": "Sending to payment...",
+    "backBtn": "← Back"
   },
   "creators": {
     "title": "Explore Creators",

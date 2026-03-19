@@ -80,7 +80,22 @@
     "resetBtn": "Lagre nytt passord →",
     "resetting": "Lagrer...",
     "resetSuccess": "Passordet ditt er oppdatert! Du sendes videre...",
-    "resetError": "Noe gikk galt. Prøv å be om en ny lenke."
+    "resetError": "Noe gikk galt. Prøv å be om en ny lenke.",
+    "planTitle": "Velg ditt abonnement",
+    "planSubtitle": "Du kan alltid bytte plan senere.",
+    "trialBanner": "Første 30 dager er gratis",
+    "trialSubtext": "Ingen binding — du kan si opp når som helst",
+    "popularBadge": "Populær",
+    "basicDesc": "Svar på anmeldelser eldre enn 1 måned",
+    "proDesc": "Svar på alle anmeldelser med det samme",
+    "basicFeature1": "Svar på eldre anmeldelser",
+    "featureProfile": "Creator profil",
+    "featureDispute": "Bestrid anmeldelser",
+    "proFeature1": "Svar på alle anmeldelser",
+    "prioritySupport": "Prioritert støtte",
+    "goToPayment": "Gå til betaling — {price} kr/mnd",
+    "sendingToPayment": "Sender til betaling...",
+    "backBtn": "← Tilbake"
   },
   "creators": {
     "title": "Utforsk creators",

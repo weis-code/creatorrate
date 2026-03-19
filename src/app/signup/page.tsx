@@ -7,21 +7,8 @@ import { useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 
 const PLANS = [
-  {
-    tier: 'BASIC',
-    name: 'Basic',
-    price: '99 kr/md',
-    description: 'Svar på anmeldelser ældre end 1 måned',
-    features: ['Svar på ældre anmeldelser', 'Creator profil', 'Disputer anmeldelser'],
-  },
-  {
-    tier: 'PRO',
-    name: 'Pro',
-    price: '149 kr/md',
-    description: 'Svar på alle anmeldelser med det samme',
-    features: ['Svar på alle anmeldelser', 'Creator profil', 'Disputer anmeldelser', 'Prioritet support'],
-    popular: true,
-  },
+  { tier: 'BASIC', name: 'Basic', price: 99 },
+  { tier: 'PRO', name: 'Pro', price: 149, popular: true },
 ]
 
 function SignupForm() {
@@ -122,13 +109,13 @@ function SignupForm() {
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
             <div className="h-1 bg-gradient-to-r from-indigo-600 to-purple-600" />
             <div className="p-8">
-              <h2 className="text-lg font-bold text-gray-900 mb-1">Vælg dit abonnement</h2>
-              <p className="text-sm text-gray-500 mb-4">Du kan altid skifte plan senere.</p>
+              <h2 className="text-lg font-bold text-gray-900 mb-1">{t('planTitle')}</h2>
+              <p className="text-sm text-gray-500 mb-4">{t('planSubtitle')}</p>
 
               {/* Free trial banner */}
               <div className="bg-gradient-to-r from-emerald-500 to-green-500 rounded-2xl p-4 mb-6 text-center text-white shadow-md shadow-green-100">
-                <div className="font-bold text-base">🎉 Første 30 dage er gratis</div>
-                <div className="text-sm text-green-100 mt-0.5">Ingen binding — du kan opsige når som helst</div>
+                <div className="font-bold text-base">🎉 {t('trialBanner')}</div>
+                <div className="text-sm text-green-100 mt-0.5">{t('trialSubtext')}</div>
               </div>
 
               {error && (
@@ -138,37 +125,42 @@ function SignupForm() {
               )}
 
               <div className="grid grid-cols-2 gap-4 mb-6">
-                {PLANS.map((plan) => (
-                  <button
-                    key={plan.tier}
-                    type="button"
-                    onClick={() => setSelectedTier(plan.tier as 'BASIC' | 'PRO')}
-                    className={`relative text-left p-5 rounded-2xl border-2 transition-all ${
-                      selectedTier === plan.tier
-                        ? 'border-indigo-600 bg-indigo-50'
-                        : 'border-gray-200 hover:border-indigo-300'
-                    }`}
-                  >
-                    {plan.popular && (
-                      <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-bold px-3 py-0.5 rounded-full">
-                        Populær
-                      </span>
-                    )}
-                    <div className="font-bold text-gray-900 mb-0.5">{plan.name}</div>
-                    <div className="text-lg font-extrabold text-indigo-600 mb-2">{plan.price}</div>
-                    <div className="text-xs text-gray-500 mb-3">{plan.description}</div>
-                    <ul className="space-y-1">
-                      {plan.features.map((f) => (
-                        <li key={f} className="flex items-center gap-1.5 text-xs text-gray-600">
-                          <svg className="w-3.5 h-3.5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                          </svg>
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-                  </button>
-                ))}
+                {PLANS.map((plan) => {
+                  const features = plan.tier === 'BASIC'
+                    ? [t('basicFeature1'), t('featureProfile'), t('featureDispute')]
+                    : [t('proFeature1'), t('featureProfile'), t('featureDispute'), t('prioritySupport')]
+                  return (
+                    <button
+                      key={plan.tier}
+                      type="button"
+                      onClick={() => setSelectedTier(plan.tier as 'BASIC' | 'PRO')}
+                      className={`relative text-left p-5 rounded-2xl border-2 transition-all ${
+                        selectedTier === plan.tier
+                          ? 'border-indigo-600 bg-indigo-50'
+                          : 'border-gray-200 hover:border-indigo-300'
+                      }`}
+                    >
+                      {plan.popular && (
+                        <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-bold px-3 py-0.5 rounded-full">
+                          {t('popularBadge')}
+                        </span>
+                      )}
+                      <div className="font-bold text-gray-900 mb-0.5">{plan.name}</div>
+                      <div className="text-lg font-extrabold text-indigo-600 mb-2">{plan.price} kr/md</div>
+                      <div className="text-xs text-gray-500 mb-3">{plan.tier === 'BASIC' ? t('basicDesc') : t('proDesc')}</div>
+                      <ul className="space-y-1">
+                        {features.map((f) => (
+                          <li key={f} className="flex items-center gap-1.5 text-xs text-gray-600">
+                            <svg className="w-3.5 h-3.5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+                            </svg>
+                            {f}
+                          </li>
+                        ))}
+                      </ul>
+                    </button>
+                  )
+                })}
               </div>
 
               <button
@@ -182,9 +174,9 @@ function SignupForm() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                     </svg>
-                    Sender til betaling...
+                    {t('sendingToPayment')}
                   </>
-                ) : `Gå til betaling — ${selectedTier === 'BASIC' ? '99' : '149'} kr/md`}
+                ) : t('goToPayment', { price: selectedTier === 'BASIC' ? '99' : '149' })}
               </button>
 
               <button
@@ -192,7 +184,7 @@ function SignupForm() {
                 onClick={() => setStep('info')}
                 className="w-full mt-3 text-sm text-gray-500 hover:text-gray-700"
               >
-                ← Tilbage
+                {t('backBtn')}
               </button>
             </div>
           </div>

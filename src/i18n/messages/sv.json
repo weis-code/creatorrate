@@ -80,7 +80,22 @@
     "resetBtn": "Spara nytt lösenord →",
     "resetting": "Sparar...",
     "resetSuccess": "Ditt lösenord har uppdaterats! Du skickas vidare...",
-    "resetError": "Något gick fel. Försök begära en ny länk."
+    "resetError": "Något gick fel. Försök begära en ny länk.",
+    "planTitle": "Välj din prenumeration",
+    "planSubtitle": "Du kan alltid byta plan senare.",
+    "trialBanner": "Första 30 dagarna är gratis",
+    "trialSubtext": "Ingen bindning — avsluta när som helst",
+    "popularBadge": "Populär",
+    "basicDesc": "Svara på recensioner äldre än 1 månad",
+    "proDesc": "Svara på alla recensioner direkt",
+    "basicFeature1": "Svara på äldre recensioner",
+    "featureProfile": "Creator profil",
+    "featureDispute": "Bestrida recensioner",
+    "proFeature1": "Svara på alla recensioner",
+    "prioritySupport": "Prioriterad support",
+    "goToPayment": "Gå till betalning — {price} kr/mån",
+    "sendingToPayment": "Skickar till betalning...",
+    "backBtn": "← Tillbaka"
   },
   "creators": {
     "title": "Utforska creators",

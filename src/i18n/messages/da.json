@@ -80,7 +80,22 @@
     "resetBtn": "Gem nyt password →",
     "resetting": "Gemmer...",
     "resetSuccess": "Dit password er opdateret! Du bliver sendt videre...",
-    "resetError": "Noget gik galt. Prøv at anmode om et nyt link."
+    "resetError": "Noget gik galt. Prøv at anmode om et nyt link.",
+    "planTitle": "Vælg dit abonnement",
+    "planSubtitle": "Du kan altid skifte plan senere.",
+    "trialBanner": "Første 30 dage er gratis",
+    "trialSubtext": "Ingen binding — du kan opsige når som helst",
+    "popularBadge": "Populær",
+    "basicDesc": "Svar på anmeldelser ældre end 1 måned",
+    "proDesc": "Svar på alle anmeldelser med det samme",
+    "basicFeature1": "Svar på ældre anmeldelser",
+    "featureProfile": "Creator profil",
+    "featureDispute": "Disputer anmeldelser",
+    "proFeature1": "Svar på alle anmeldelser",
+    "prioritySupport": "Prioritet support",
+    "goToPayment": "Gå til betaling — {price} kr/md",
+    "sendingToPayment": "Sender til betaling...",
+    "backBtn": "← Tilbage"
   },
   "creators": {
     "title": "Udforsk creators",

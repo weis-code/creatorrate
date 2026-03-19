@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import StarRating from '@/components/StarRating'
@@ -10,13 +10,14 @@ const PLATFORMS: Record<string, string> = {
   Twitch: '🟣', Podcast: '🎙️', Andet: '🌐',
 }
 
-export default async function ViewerProfilePage({ params }: { params: { username: string } }) {
-  const supabase = await createClient()
+export default async function ViewerProfilePage({ params }: { params: Promise<{ username: string }> }) {
+  const { username } = await params
+  const supabase = createAdminClient()
 
   const { data: profile } = await supabase
     .from('profiles')
     .select('id, username, bio, created_at')
-    .eq('username', params.username)
+    .eq('username', username)
     .single()
 
   if (!profile) notFound()
