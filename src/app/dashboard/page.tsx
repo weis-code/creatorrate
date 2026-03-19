@@ -4,6 +4,7 @@ import Link from 'next/link'
 import StarRating from '@/components/StarRating'
 import { getTranslations } from 'next-intl/server'
 import SetupNudgeModal from './SetupNudgeModal'
+import DashboardReviews from '@/components/DashboardReviews'
 
 export const dynamic = 'force-dynamic'
 
@@ -127,40 +128,12 @@ export default async function DashboardPage() {
         </div>
 
         {reviews && reviews.length > 0 ? (
-          <div className="space-y-3">
-            {reviews.slice(0, 10).map((review: any) => (
-              <div
-                key={review.id}
-                className={`bg-white rounded-2xl p-5 shadow-sm border transition-colors ${review.is_disputed ? 'border-orange-200 bg-orange-50/30' : 'border-gray-100'}`}
-              >
-                <div className="flex justify-between items-start gap-3">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <span className="text-indigo-600 font-bold text-xs">
-                        {review.viewer?.username?.[0]?.toUpperCase() ?? '?'}
-                      </span>
-                    </div>
-                    <div className="min-w-0">
-                      <span className="font-medium text-sm text-gray-900">{review.viewer?.username}</span>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <StarRating rating={review.rating} size="sm" />
-                        {review.is_disputed && (
-                          <span className="text-xs text-orange-600 bg-orange-50 border border-orange-100 px-2 py-0.5 rounded-full">Disputed</span>
-                        )}
-                        {review.reply && (
-                          <span className="text-xs text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">{t('replied')}</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <span className="text-xs text-gray-400 flex-shrink-0">
-                    {new Date(review.created_at).toLocaleDateString('da-DK', { day: 'numeric', month: 'short' })}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-600 mt-3 line-clamp-2 leading-relaxed">{review.content}</p>
-              </div>
-            ))}
-          </div>
+          <DashboardReviews
+            reviews={reviews}
+            currentUserId={user.id}
+            creatorUserId={creator.user_id}
+            creatorName={creator.display_name}
+          />
         ) : (
           <div className="text-center py-16 bg-white rounded-2xl border border-gray-100 shadow-sm">
             <div className="text-4xl mb-3">📭</div>

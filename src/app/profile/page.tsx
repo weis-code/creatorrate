@@ -23,6 +23,7 @@ export default function ProfilePage() {
   const [creator, setCreator] = useState<any>(null)
   const [email, setEmail] = useState('')
   const [username, setUsername] = useState('')
+  const [bio, setBio] = useState('')
   const [links, setLinks] = useState({ youtube_url: '', instagram_url: '', tiktok_url: '', website_url: '' })
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -45,6 +46,7 @@ export default function ProfilePage() {
       const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single()
       setProfile(data ?? { id: user.id, role: 'viewer', username: '' })
       setUsername(data?.username ?? '')
+      setBio(data?.bio ?? '')
       if (data?.role === 'creator') {
         const { data: c } = await supabase.from('creators').select('*').eq('user_id', user.id).single()
         if (c) {
@@ -75,7 +77,7 @@ export default function ProfilePage() {
 
     const { error: profileError } = await supabase
       .from('profiles')
-      .update({ username })
+      .update({ username, bio: bio.trim() || null })
       .eq('id', profile.id)
 
     if (profileError) {
@@ -226,6 +228,20 @@ export default function ProfilePage() {
                     {profile.role === 'creator' ? t('creator') : t('viewer')}
                   </span>
                 </div>
+              </div>
+
+              {/* Bio */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Bio</label>
+                <textarea
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  placeholder="Fortæl lidt om dig selv..."
+                  maxLength={300}
+                  rows={3}
+                  className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition bg-gray-50 resize-none"
+                />
+                <p className="text-xs text-gray-400 mt-1 text-right">{bio.length}/300</p>
               </div>
             </div>
 

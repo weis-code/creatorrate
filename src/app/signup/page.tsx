@@ -123,7 +123,13 @@ function SignupForm() {
             <div className="h-1 bg-gradient-to-r from-indigo-600 to-purple-600" />
             <div className="p-8">
               <h2 className="text-lg font-bold text-gray-900 mb-1">Vælg dit abonnement</h2>
-              <p className="text-sm text-gray-500 mb-6">Du kan altid skifte plan senere.</p>
+              <p className="text-sm text-gray-500 mb-4">Du kan altid skifte plan senere.</p>
+
+              {/* Free trial banner */}
+              <div className="bg-gradient-to-r from-emerald-500 to-green-500 rounded-2xl p-4 mb-6 text-center text-white shadow-md shadow-green-100">
+                <div className="font-bold text-base">🎉 Første 30 dage er gratis</div>
+                <div className="text-sm text-green-100 mt-0.5">Ingen binding — du kan opsige når som helst</div>
+              </div>
 
               {error && (
                 <div className="flex items-center gap-2.5 bg-red-50 border border-red-100 text-red-700 px-4 py-3 rounded-xl text-sm mb-4">

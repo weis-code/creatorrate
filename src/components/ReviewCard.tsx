@@ -5,6 +5,7 @@ import StarRating from './StarRating'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
+import Link from 'next/link'
 
 interface ReviewCardProps {
   review: any
@@ -120,7 +121,9 @@ export default function ReviewCard({ review, currentUserId, creatorUserId, creat
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <div className="font-medium text-gray-900 text-sm">{review.viewer?.username ?? 'Anonym'}</div>
+              <Link href={`/viewers/${review.viewer?.username}`} className="font-medium text-gray-900 text-sm hover:text-indigo-600 transition-colors">
+                {review.viewer?.username ?? 'Anonym'}
+              </Link>
               {review.platform && (
                 <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
                   {review.platform === 'YouTube'   && '▶️'}
