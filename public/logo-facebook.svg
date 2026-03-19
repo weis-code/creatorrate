@@ -1,0 +1,21 @@
+<svg width="500" height="500" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="500" height="500" rx="100" fill="#111827"/>
+
+  <!-- 5-pointed star, top-right -->
+  <polygon
+    points="375,60 388,100 430,100 397,124 410,164 375,140 340,164 353,124 320,100 362,100"
+    fill="#ff4d6d"
+  />
+
+  <!-- CR bold text -->
+  <text
+    x="52"
+    y="400"
+    font-family="system-ui, -apple-system, Arial, sans-serif"
+    font-weight="800"
+    font-size="230"
+    letter-spacing="-8"
+    fill="white"
+  >CR</text>
+</svg>

@@ -5,6 +5,7 @@ import StarRating from '@/components/StarRating'
 import { getTranslations } from 'next-intl/server'
 import SetupNudgeModal from './SetupNudgeModal'
 import DashboardReviews from '@/components/DashboardReviews'
+import ShareProfileButton from '@/components/ShareProfileButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -65,6 +66,7 @@ export default async function DashboardPage() {
             >
               {t('viewProfile')}
             </Link>
+            <ShareProfileButton url={`${process.env.NEXT_PUBLIC_APP_URL ?? 'https://creatorrate.dk'}/creators/${creator.slug}`} />
             <Link
               href="/dashboard/settings"
               className="bg-white/15 hover:bg-white/25 text-white border border-white/20 px-4 py-2 rounded-xl text-sm font-medium transition-colors"

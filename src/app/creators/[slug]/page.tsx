@@ -8,6 +8,35 @@ import { getTranslations } from 'next-intl/server'
 
 export const dynamic = 'force-dynamic'
 
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const supabase = await createClient()
+  const { data: creator } = await supabase.from('creators').select('display_name, bio, avatar_url, slug').eq('slug', slug).single()
+  if (!creator) return {}
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://creatorrate.dk'
+  const profileUrl = `${appUrl}/creators/${slug}`
+  const title = `${creator.display_name} — CreatorRate`
+  const description = creator.bio ? creator.bio.slice(0, 155) : `Se anmeldelser af ${creator.display_name} på CreatorRate.`
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: profileUrl,
+      siteName: 'CreatorRate',
+      type: 'profile',
+      images: creator.avatar_url ? [{ url: creator.avatar_url, width: 400, height: 400 }] : [],
+    },
+    twitter: {
+      card: 'summary',
+      title,
+      description,
+      images: creator.avatar_url ? [creator.avatar_url] : [],
+    },
+  }
+}
+
 const YoutubeIcon = () => (
   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
     <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>

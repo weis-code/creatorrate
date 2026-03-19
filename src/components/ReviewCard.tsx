@@ -106,6 +106,16 @@ export default function ReviewCard({ review, currentUserId, creatorUserId, creat
       setShowReplyForm(false)
       setReplyContent('')
       router.refresh()
+      // Notify viewer by email
+      fetch('/api/emails/review-replied', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          reviewId: review.id,
+          creatorId: creatorData.id,
+          replyContent: replyContent.trim(),
+        }),
+      }).catch(() => {})
     }
     setLoading(false)
   }

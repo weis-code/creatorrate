@@ -84,6 +84,48 @@ export function welcomeCreatorEmail(creatorName: string, slug: string) {
   }
 }
 
+export function creatorReplyEmail(
+  viewerUsername: string,
+  creatorName: string,
+  creatorSlug: string,
+  originalContent: string,
+  replyContent: string
+) {
+  const profileUrl = `${APP_URL}/creators/${creatorSlug}`
+  const stars = '💬'
+  return {
+    subject: `${creatorName} har svaret på din anmeldelse`,
+    html: `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;margin:0;padding:40px 16px;">
+  <div style="max-width:560px;margin:0 auto;background:white;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+    <div style="background:linear-gradient(135deg,#4f46e5,#7c3aed);padding:32px;text-align:center;">
+      <div style="font-size:40px;margin-bottom:8px;">💬</div>
+      <h1 style="color:white;margin:0;font-size:22px;font-weight:700;">${creatorName} har svaret!</h1>
+    </div>
+    <div style="padding:32px;">
+      <p style="color:#374151;font-size:16px;margin:0 0 16px;">Hej <strong>@${viewerUsername}</strong>!</p>
+      <p style="color:#374151;margin:0 0 20px;"><strong>${creatorName}</strong> har svaret på din anmeldelse:</p>
+      <div style="background:#f8fafc;border-radius:12px;padding:16px;margin-bottom:12px;border-left:4px solid #e5e7eb;">
+        <div style="font-size:12px;color:#9ca3af;margin-bottom:6px;">Din anmeldelse</div>
+        <p style="color:#6b7280;margin:0;font-style:italic;">"${originalContent.slice(0, 200)}${originalContent.length > 200 ? '…' : ''}"</p>
+      </div>
+      <div style="background:#ede9fe;border-radius:12px;padding:16px;margin-bottom:24px;border-left:4px solid #4f46e5;">
+        <div style="font-size:12px;color:#7c3aed;font-weight:600;margin-bottom:6px;">${creatorName}s svar</div>
+        <p style="color:#374151;margin:0;">"${replyContent}"</p>
+      </div>
+      <a href="${profileUrl}" style="background:linear-gradient(135deg,#4f46e5,#7c3aed);color:white;text-decoration:none;padding:14px 24px;border-radius:10px;font-weight:600;text-align:center;display:block;">Se anmeldelsen →</a>
+    </div>
+    <div style="padding:20px 32px;border-top:1px solid #f1f5f9;text-align:center;">
+      <p style="color:#9ca3af;font-size:12px;margin:0;">CreatorRate — Ærlige anmeldelser fra rigtige seere</p>
+    </div>
+  </div>
+</body>
+</html>`,
+  }
+}
+
 export function welcomeViewerEmail(username: string) {
   const exploreUrl = `${APP_URL}/creators`
 
