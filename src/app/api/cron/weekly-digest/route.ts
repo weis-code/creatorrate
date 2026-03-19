@@ -120,6 +120,20 @@ export async function GET(req: Request) {
     }
   }
 
-  notifySlack(`📊 Ugentlig digest sendt til ${sent} creators`)
+  // Track run count and only notify Slack for the first 10 runs
+  const { error: insertError } = await supabase
+    .from('digest_runs')
+    .insert({ sent_count: sent })
+
+  if (!insertError) {
+    const { count } = await supabase
+      .from('digest_runs')
+      .select('*', { count: 'exact', head: true })
+
+    if ((count ?? 0) <= 10) {
+      notifySlack(`📊 Ugentlig digest #${count} sendt til ${sent} creators`)
+    }
+  }
+
   return NextResponse.json({ sent })
 }

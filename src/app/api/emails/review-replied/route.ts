@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { resend, FROM_EMAIL, creatorReplyEmail } from '@/lib/email'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { notifySlack } from '@/lib/slack'
 
 export async function POST(req: Request) {
   try {
@@ -31,10 +30,6 @@ export async function POST(req: Request) {
     if (!creator) return NextResponse.json({ error: 'Creator not found' }, { status: 404 })
 
     const viewer = review.viewer as any
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://creatorrate.dk'
-
-    // Slack notification
-    notifySlack(`💬 *${creator.display_name}* svarede på @${viewer?.username ?? 'anonym'}s anmeldelse\n_"${replyContent.slice(0, 150)}${replyContent.length > 150 ? '…' : ''}"_\n${appUrl}/creators/${creator.slug}`)
 
     // Email to viewer
     if (viewer?.email && process.env.RESEND_API_KEY) {
