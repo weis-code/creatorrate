@@ -14,6 +14,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const navItems = [
     { href: '/admin', label: 'Overblik', icon: '📊' },
     { href: '/admin/users', label: 'Brugere', icon: '👥' },
+    { href: '/admin/creators', label: 'Creators', icon: '🎬' },
     { href: '/admin/claims', label: 'Overtagelser', icon: '🔑' },
     { href: '/admin/disputes', label: 'Disputes', icon: '🚩' },
     { href: '/admin/subscriptions', label: 'Abonnementer', icon: '💳' },
