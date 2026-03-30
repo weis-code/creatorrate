@@ -39,7 +39,7 @@ export function extractHandle(url: string): ExtractedHandle | null {
     return { platform: 'instagram', handle: segment }
   }
 
-  if (hostname === 'tiktok.com') {
+  if (hostname === 'tiktok.com' || hostname === 'vm.tiktok.com') {
     const segment = pathname.slice(1).split('/')[0]
     if (!segment) return null
     const handle = segment.startsWith('@') ? segment.slice(1) : segment
@@ -50,7 +50,7 @@ export function extractHandle(url: string): ExtractedHandle | null {
 }
 
 function normalizeForComparison(s: string): string {
-  return s.toLowerCase().replace(/[-_]/g, '')
+  return s.toLowerCase().replace(/[-_.]/g, '')
 }
 
 interface PlatformUrls {
