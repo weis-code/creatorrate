@@ -151,6 +151,7 @@
     "sending": "Skickar recension...",
     "alreadyReviewed": "Du har redan recenserat den här creatorn.",
     "creatorsCantReview": "Creators kan inte recensera andra creators.",
+    "cantReviewSelf": "Du kan inte recensera din egen profil.",
     "reviewError": "Fel vid skapande av recension: "
   },
   "claim": {

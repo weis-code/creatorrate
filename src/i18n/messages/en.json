@@ -151,6 +151,7 @@
     "sending": "Sending review...",
     "alreadyReviewed": "You have already reviewed this creator.",
     "creatorsCantReview": "Creators cannot review other creators.",
+    "cantReviewSelf": "You cannot review your own profile.",
     "reviewError": "Error creating review: "
   },
   "claim": {

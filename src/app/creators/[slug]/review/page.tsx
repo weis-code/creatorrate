@@ -39,7 +39,7 @@ export default function WriteReviewPage({ params }: { params: Promise<{ slug: st
     if (!user) { router.push(`/login?redirect=/creators/${slug}/review`); return }
 
     const { data: profile } = await supabase.from('profiles').select('role, username').eq('id', user.id).single()
-    if (profile?.role === 'creator') { setError(t('creatorsCantReview')); setLoading(false); return }
+    if (creator.user_id === user.id) { setError(t('cantReviewSelf')); setLoading(false); return }
 
     const { error } = await supabase.from('reviews').insert({
       creator_id: creator.id,

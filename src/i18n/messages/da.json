@@ -151,6 +151,7 @@
     "sending": "Sender anmeldelse...",
     "alreadyReviewed": "Du har allerede anmeldt denne creator.",
     "creatorsCantReview": "Creators kan ikke anmelde andre creators.",
+    "cantReviewSelf": "Du kan ikke anmelde din egen profil.",
     "reviewError": "Fejl ved oprettelse af anmeldelse: "
   },
   "claim": {

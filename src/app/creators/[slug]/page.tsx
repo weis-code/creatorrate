@@ -139,7 +139,7 @@ export default async function CreatorPage({ params }: { params: Promise<{ slug: 
               <div className="ring-4 ring-white rounded-2xl shadow-lg">
                 <CreatorAvatar displayName={creator.display_name} avatarUrl={creator.avatar_url} size="xl" />
               </div>
-              {!userReview && userProfile?.role !== 'creator' && (
+              {!userReview && creator.user_id !== user?.id && (
                 <WriteReviewButton creatorId={creator.id} creatorSlug={slug} />
               )}
             </div>
