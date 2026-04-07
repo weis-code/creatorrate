@@ -170,7 +170,7 @@ export async function POST(req: Request) {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session
-    const { pending_id, tier, creator_id } = session.metadata ?? {}
+    const { pending_id, tier, creator_id, upgrade_user_id, upgrade_username } = session.metadata ?? {}
 
     console.log('[Stripe Webhook] checkout.session.completed — metadata:', { pending_id, tier, creator_id })
 
@@ -188,6 +188,43 @@ export async function POST(req: Request) {
         subscription.id,
         periodEnd
       )
+    } else if (upgrade_user_id) {
+      // Existing viewer upgrading to creator
+      await supabase.from('profiles').update({ role: 'creator' }).eq('id', upgrade_user_id)
+
+      const baseSlug = (upgrade_username ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+      let creatorId = upgrade_user_id
+
+      const { data: unclaimed } = await supabase.from('creators').select('id').eq('slug', baseSlug).is('user_id', null).maybeSingle()
+      if (unclaimed) {
+        await supabase.from('creators').update({ user_id: upgrade_user_id, is_claimed: true }).eq('id', unclaimed.id)
+        creatorId = unclaimed.id
+      } else {
+        const { data: existing } = await supabase.from('creators').select('id').eq('user_id', upgrade_user_id).maybeSingle()
+        if (!existing) {
+          let slug = baseSlug
+          let counter = 1
+          while (true) {
+            const { data: conflict } = await supabase.from('creators').select('id').eq('slug', slug).maybeSingle()
+            if (!conflict) break
+            slug = `${baseSlug}-${counter++}`
+          }
+          await supabase.from('creators').insert({ id: upgrade_user_id, user_id: upgrade_user_id, display_name: upgrade_username, slug, is_claimed: true })
+        } else {
+          creatorId = existing.id
+        }
+      }
+
+      await supabase.from('subscriptions').insert({
+        creator_id: creatorId,
+        stripe_subscription_id: subscription.id,
+        stripe_customer_id: session.customer as string,
+        tier: tier.toLowerCase(),
+        status: 'active',
+        current_period_end: periodEnd.toISOString(),
+      })
+
+      notifySlack(`⬆️ *Viewer opgraderet til creator*\n@${upgrade_username} — plan: *${tier}*`)
     } else if (creator_id) {
       // Existing creator upgrading/choosing plan
       await supabase.from('subscriptions').upsert({

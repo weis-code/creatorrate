@@ -18,6 +18,8 @@ export default function ReviewCard({ review, currentUserId, creatorUserId, creat
   const t = useTranslations('common')
   const [showDisputeForm, setShowDisputeForm] = useState(false)
   const [showReplyForm, setShowReplyForm] = useState(false)
+  const [editingReply, setEditingReply] = useState(false)
+  const [editReplyContent, setEditReplyContent] = useState('')
   const [disputeReason, setDisputeReason] = useState('')
   const [replyContent, setReplyContent] = useState('')
   const [loading, setLoading] = useState(false)
@@ -53,6 +55,19 @@ export default function ReviewCard({ review, currentUserId, creatorUserId, creat
         }),
       }).catch(() => {})
     }
+    setLoading(false)
+  }
+
+  const handleEditReply = async () => {
+    if (!editReplyContent.trim()) return
+    setLoading(true)
+    setError('')
+    const { error: updateError } = await supabase
+      .from('review_replies')
+      .update({ content: editReplyContent.trim() })
+      .eq('review_id', review.id)
+    if (updateError) setError(t('replyError') + updateError.message)
+    else { setEditingReply(false); router.refresh() }
     setLoading(false)
   }
 
@@ -164,11 +179,40 @@ export default function ReviewCard({ review, currentUserId, creatorUserId, creat
       {/* Reply */}
       {review.reply && (
         <div className="mt-4 bg-indigo-50 rounded-lg p-4 border-l-4 border-indigo-400">
-          <div className="text-xs font-semibold text-indigo-700 mb-1">{t('creatorReply')}</div>
-          <p className="text-sm text-gray-700">{review.reply.content}</p>
-          <p className="text-xs text-gray-400 mt-1">
-            {new Date(review.reply.created_at).toLocaleDateString('da-DK')}
-          </p>
+          <div className="flex items-center justify-between mb-1">
+            <div className="text-xs font-semibold text-indigo-700">{t('creatorReply')}</div>
+            {isCreator && !editingReply && (
+              <button
+                onClick={() => { setEditingReply(true); setEditReplyContent(review.reply.content) }}
+                className="text-xs text-indigo-500 hover:text-indigo-700 font-medium"
+              >
+                Rediger
+              </button>
+            )}
+          </div>
+          {editingReply ? (
+            <div className="space-y-2">
+              {error && <p className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded">{error}</p>}
+              <textarea
+                value={editReplyContent}
+                onChange={(e) => setEditReplyContent(e.target.value)}
+                className="w-full border border-indigo-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 min-h-20 bg-white"
+              />
+              <div className="flex gap-2">
+                <button onClick={handleEditReply} disabled={loading} className="bg-indigo-600 text-white px-4 py-1.5 rounded text-xs font-medium hover:bg-indigo-700 disabled:opacity-50">
+                  {loading ? t('sending') : 'Gem svar'}
+                </button>
+                <button onClick={() => { setEditingReply(false); setError('') }} className="text-xs text-gray-500 hover:text-gray-700">
+                  {t('cancel')}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <p className="text-sm text-gray-700">{review.reply.content}</p>
+              <p className="text-xs text-gray-400 mt-1">{new Date(review.reply.created_at).toLocaleDateString('da-DK')}</p>
+            </>
+          )}
         </div>
       )}
 

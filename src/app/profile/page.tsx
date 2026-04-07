@@ -462,7 +462,87 @@ export default function ProfilePage() {
             ))
           )}
         </div>
+
+        {/* Upgrade to creator — only for viewers */}
+        {profile.role === 'viewer' && (
+          <UpgradeToCreator />
+        )}
       </div>
+    </div>
+  )
+}
+
+function UpgradeToCreator() {
+  const [selectedTier, setSelectedTier] = useState<'BASIC' | 'PRO'>('PRO')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleUpgrade = async () => {
+    setLoading(true)
+    setError('')
+    const res = await fetch('/api/auth/upgrade-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tier: selectedTier }),
+    })
+    const data = await res.json()
+    if (data.url) window.location.href = data.url
+    else { setError(data.error ?? 'Noget gik galt'); setLoading(false) }
+  }
+
+  const plans = [
+    { tier: 'BASIC' as const, name: 'Basic', price: '99', features: ['Svar på ældre anmeldelser', 'Creator profil', 'Disputer anmeldelser'] },
+    { tier: 'PRO' as const, name: 'Pro', price: '149', popular: true, features: ['Svar på alle anmeldelser', 'Creator profil', 'Disputer anmeldelser', 'Prioritet support'] },
+  ]
+
+  return (
+    <div className="mt-8 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl border border-indigo-100 p-6">
+      <div className="text-center mb-5">
+        <div className="text-2xl mb-2">🎬</div>
+        <h2 className="text-lg font-bold text-gray-900">Bliv Creator</h2>
+        <p className="text-sm text-gray-500 mt-1">Opret din creator-profil og modtag anmeldelser fra dine seere</p>
+      </div>
+
+      <div className="bg-gradient-to-r from-emerald-500 to-green-500 rounded-xl p-3 mb-5 text-center text-white">
+        <div className="font-bold text-sm">🎉 Første 30 dage er gratis</div>
+        <div className="text-xs text-green-100 mt-0.5">Ingen binding — opsig når som helst</div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 mb-5">
+        {plans.map((plan) => (
+          <button
+            key={plan.tier}
+            onClick={() => setSelectedTier(plan.tier)}
+            className={`relative text-left p-4 rounded-xl border-2 transition-all ${selectedTier === plan.tier ? 'border-indigo-600 bg-white shadow-sm' : 'border-gray-200 hover:border-indigo-300 bg-white/60'}`}
+          >
+            {plan.popular && (
+              <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">Populær</span>
+            )}
+            <div className="font-bold text-gray-900 text-sm">{plan.name}</div>
+            <div className="text-base font-extrabold text-indigo-600 mb-2">{plan.price} kr/md</div>
+            <ul className="space-y-1">
+              {plan.features.map(f => (
+                <li key={f} className="flex items-center gap-1 text-[11px] text-gray-600">
+                  <svg className="w-3 h-3 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
+                  {f}
+                </li>
+              ))}
+            </ul>
+          </button>
+        ))}
+      </div>
+
+      {error && <p className="text-sm text-red-500 text-center mb-3">{error}</p>}
+
+      <button
+        onClick={handleUpgrade}
+        disabled={loading}
+        className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 transition-all shadow-lg shadow-indigo-200 flex items-center justify-center gap-2 text-sm"
+      >
+        {loading ? (
+          <><svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Sender til betaling...</>
+        ) : `Bliv Creator — ${selectedTier === 'BASIC' ? '99' : '149'} kr/md`}
+      </button>
     </div>
   )
 }
