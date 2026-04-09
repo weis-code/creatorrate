@@ -7,12 +7,14 @@ export async function POST(req: NextRequest) {
 
   const supabase = createAdminClient()
 
-  const { data: users } = await supabase.auth.admin.listUsers()
-  const user = users?.users.find(u => u.email === email)
+  const { data: users } = await supabase.auth.admin.listUsers({ perPage: 1000 })
+  const user = users?.users.find(u => u.email?.toLowerCase() === email.toLowerCase())
   if (!user) {
+    console.log('forgot-password: user not found for email', email)
     // Return success even if user not found to prevent email enumeration
     return NextResponse.json({ success: true })
   }
+  console.log('forgot-password: found user', user.id)
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.creatorrate.io'
 
