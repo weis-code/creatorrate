@@ -58,7 +58,9 @@ export async function POST(req: NextRequest) {
   })
 
   if (!resendRes.ok) {
-    return NextResponse.json({ error: 'Email kunne ikke sendes' }, { status: 500 })
+    const resendError = await resendRes.json().catch(() => ({}))
+    console.error('Resend error:', resendRes.status, JSON.stringify(resendError))
+    return NextResponse.json({ error: 'Email kunne ikke sendes', detail: resendError }, { status: 500 })
   }
 
   return NextResponse.json({ success: true })
