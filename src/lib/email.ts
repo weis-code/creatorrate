@@ -2,8 +2,8 @@ import { Resend } from 'resend'
 
 export const resend = new Resend(process.env.RESEND_API_KEY)
 
-export const FROM_EMAIL = process.env.FROM_EMAIL ?? 'noreply@creatorrate.dk'
-export const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://creatorrate.dk'
+export const FROM_EMAIL = process.env.FROM_EMAIL ?? 'noreply@creatorrate.io'
+export const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://creatorrate.io'
 
 export function newReviewEmail(
   creatorName: string,
