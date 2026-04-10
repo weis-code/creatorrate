@@ -76,16 +76,20 @@ export default function ProfilePage() {
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file || !profile) return
+    if (!file) return
+    if (file.size > 5 * 1024 * 1024) { setError('Billedet må max være 5 MB'); return }
     setAvatarUploading(true)
     setError('')
 
-    const ext = file.name.split('.').pop()
-    const path = `${profile.id}/avatar.${ext}`
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { setAvatarUploading(false); return }
+
+    const ext = file.name.split('.').pop() ?? 'jpg'
+    const path = `${user.id}/${Date.now()}.${ext}`
 
     const { error: uploadError } = await supabase.storage
       .from('avatars')
-      .upload(path, file, { upsert: true })
+      .upload(path, file, { upsert: true, contentType: file.type })
 
     if (uploadError) {
       setError('Kunne ikke uploade billede: ' + uploadError.message)
@@ -96,7 +100,7 @@ export default function ProfilePage() {
     const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
     const urlWithCacheBust = `${publicUrl}?t=${Date.now()}`
 
-    await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', profile.id)
+    await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', user.id)
     if (creator) {
       await supabase.from('creators').update({ avatar_url: publicUrl }).eq('id', creator.id)
     }
