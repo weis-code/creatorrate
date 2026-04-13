@@ -70,21 +70,33 @@ function SignupForm() {
     setLoading(true)
     setError('')
 
-    const res = await fetch('/api/auth/creator-checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, username, password, tier: selectedTier }),
-    })
+    try {
+      const res = await fetch('/api/auth/creator-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, username, password, tier: selectedTier }),
+      })
 
-    const data = await res.json()
+      let data: any = {}
+      try { data = await res.json() } catch { /* ignore parse error */ }
 
-    if (!res.ok) {
-      setError(data.error || 'Noget gik galt')
+      if (!res.ok) {
+        setError(data.error || 'Noget gik galt — prøv igen')
+        setLoading(false)
+        return
+      }
+
+      if (!data.url) {
+        setError('Kunne ikke oprette betalingssession — prøv igen')
+        setLoading(false)
+        return
+      }
+
+      window.location.href = data.url
+    } catch (err: any) {
+      setError('Netværksfejl — tjek din forbindelse og prøv igen')
       setLoading(false)
-      return
     }
-
-    window.location.href = data.url
   }
 
   const logoSection = (
