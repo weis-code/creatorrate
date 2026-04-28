@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { createClient } from '@/lib/supabase/server'
+import { blogPosts } from '@/lib/blog'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://creatorrate.io'
 
@@ -31,6 +32,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily',
       priority: 0.9,
     },
+    {
+      url: `${APP_URL}/blog`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    ...blogPosts.map((post) => ({
+      url: `${APP_URL}/blog/${post.slug}`,
+      lastModified: new Date(post.date),
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    })),
     {
       url: `${APP_URL}/signup`,
       lastModified: new Date(),

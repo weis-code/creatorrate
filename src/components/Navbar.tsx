@@ -98,6 +98,13 @@ export default function Navbar() {
               {t('exploreCreators')}
             </Link>
 
+            <Link
+              href="/blog"
+              className="text-[13px] font-medium text-gray-500 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-50 transition-all"
+            >
+              Blog
+            </Link>
+
             <LanguageSwitcher />
 
             {user ? (
