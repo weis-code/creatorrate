@@ -20,15 +20,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     .single()
   if (!creator) return {}
   const profileUrl = `${APP_URL}/creators/${slug}`
-  const title = `${creator.display_name} anmeldelser`
-  const description = creator.bio
-    ? creator.bio.slice(0, 155)
-    : `Se ${creator.review_count ?? 0} anmeldelser af ${creator.display_name} på CreatorRate. Gennemsnit: ${creator.average_rating?.toFixed(1) ?? '?'}/5.`
+  const title = `${creator.display_name} Reviews & Ratings`
+  const reviewCount = creator.review_count ?? 0
+  const rating = creator.average_rating?.toFixed(1) ?? null
+  const descriptionSuffix = reviewCount > 0 && rating
+    ? ` ${reviewCount} anmeldelser · ${rating}/5 stjerner på CreatorRate.`
+    : ` Se anmeldelser på CreatorRate.`
+  const bioSnippet = creator.bio ? creator.bio.slice(0, 110) + '.' : ''
+  const description = (bioSnippet + descriptionSuffix).slice(0, 160)
   return {
     title,
     description,
     openGraph: {
-      title: `${creator.display_name} — CreatorRate`,
+      title: `${creator.display_name} Reviews & Ratings | CreatorRate`,
       description,
       url: profileUrl,
       siteName: 'CreatorRate',
@@ -39,7 +43,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     },
     twitter: {
       card: 'summary',
-      title: `${creator.display_name} — CreatorRate`,
+      title: `${creator.display_name} Reviews & Ratings | CreatorRate`,
       description,
       images: creator.avatar_url ? [creator.avatar_url] : [`${APP_URL}/logo.svg`],
     },
