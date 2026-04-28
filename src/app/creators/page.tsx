@@ -4,8 +4,20 @@ import StarRating from '@/components/StarRating'
 import CreatePlaceholderButton from '@/components/CreatePlaceholderButton'
 import CreatorAvatar from '@/components/CreatorAvatar'
 import { getTranslations } from 'next-intl/server'
+import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
+
+export const metadata: Metadata = {
+  title: 'Find creators',
+  description: 'Søg og find anmeldelser af danske YouTubere, TikTokere, Instagrammers og andre creators. Se hvad rigtige seere siger.',
+  openGraph: {
+    title: 'Find creators — CreatorRate',
+    description: 'Søg og find anmeldelser af danske creators. Se hvad rigtige seere siger.',
+    url: '/creators',
+    type: 'website',
+  },
+}
 
 export default async function CreatorsPage({ searchParams }: { searchParams: Promise<{ q?: string; category?: string }> }) {
   const params = await searchParams

@@ -8,31 +8,43 @@ import { getTranslations } from 'next-intl/server'
 
 export const dynamic = 'force-dynamic'
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://creatorrate.io'
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const supabase = await createClient()
-  const { data: creator } = await supabase.from('creators').select('display_name, bio, avatar_url, slug').eq('slug', slug).single()
+  const { data: creator } = await supabase
+    .from('creators')
+    .select('display_name, bio, avatar_url, slug, average_rating, review_count')
+    .eq('slug', slug)
+    .single()
   if (!creator) return {}
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://creatorrate.dk'
-  const profileUrl = `${appUrl}/creators/${slug}`
-  const title = `${creator.display_name} — CreatorRate`
-  const description = creator.bio ? creator.bio.slice(0, 155) : `Se anmeldelser af ${creator.display_name} på CreatorRate.`
+  const profileUrl = `${APP_URL}/creators/${slug}`
+  const title = `${creator.display_name} anmeldelser`
+  const description = creator.bio
+    ? creator.bio.slice(0, 155)
+    : `Se ${creator.review_count ?? 0} anmeldelser af ${creator.display_name} på CreatorRate. Gennemsnit: ${creator.average_rating?.toFixed(1) ?? '?'}/5.`
   return {
     title,
     description,
     openGraph: {
-      title,
+      title: `${creator.display_name} — CreatorRate`,
       description,
       url: profileUrl,
       siteName: 'CreatorRate',
       type: 'profile',
-      images: creator.avatar_url ? [{ url: creator.avatar_url, width: 400, height: 400 }] : [],
+      images: creator.avatar_url
+        ? [{ url: creator.avatar_url, width: 400, height: 400, alt: creator.display_name }]
+        : [{ url: `${APP_URL}/logo.svg`, width: 512, height: 512, alt: 'CreatorRate' }],
     },
     twitter: {
       card: 'summary',
-      title,
+      title: `${creator.display_name} — CreatorRate`,
       description,
-      images: creator.avatar_url ? [creator.avatar_url] : [],
+      images: creator.avatar_url ? [creator.avatar_url] : [`${APP_URL}/logo.svg`],
+    },
+    alternates: {
+      canonical: profileUrl,
     },
   }
 }
@@ -102,8 +114,72 @@ export default async function CreatorPage({ params }: { params: Promise<{ slug: 
     { url: creator.website_url, label: t('website'), icon: <GlobeIcon />, color: 'text-indigo-500 bg-indigo-50 hover:bg-indigo-100 border-indigo-100' },
   ].filter((l) => l.url)
 
+  const profileUrl = `${APP_URL}/creators/${slug}`
+  const avgRating = creator.average_rating ?? 0
+  const reviewCount = reviews?.length ?? 0
+
+  // JSON-LD structured data
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': `${APP_URL}/#organization`,
+        name: 'CreatorRate',
+        url: APP_URL,
+        logo: `${APP_URL}/logo.svg`,
+        description: 'Trustpilot for creators — anmeld dine favorit YouTubere, TikTokere og andre creators.',
+      },
+      {
+        '@type': 'ProfilePage',
+        '@id': profileUrl,
+        url: profileUrl,
+        name: `${creator.display_name} anmeldelser — CreatorRate`,
+        isPartOf: { '@id': `${APP_URL}/#organization` },
+        ...(reviewCount > 0 && avgRating > 0 ? {
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: avgRating.toFixed(1),
+            reviewCount,
+            bestRating: 5,
+            worstRating: 1,
+          },
+        } : {}),
+        mainEntity: {
+          '@type': 'Person',
+          name: creator.display_name,
+          description: creator.bio ?? undefined,
+          image: creator.avatar_url ?? undefined,
+          url: profileUrl,
+          ...(creator.youtube_url ? { sameAs: [creator.youtube_url] } : {}),
+        },
+        ...(reviewCount > 0 ? {
+          review: (reviews ?? []).slice(0, 5).map((r) => ({
+            '@type': 'Review',
+            reviewRating: {
+              '@type': 'Rating',
+              ratingValue: r.rating,
+              bestRating: 5,
+              worstRating: 1,
+            },
+            author: {
+              '@type': 'Person',
+              name: r.viewer?.username ?? 'Anonym',
+            },
+            reviewBody: r.content,
+            datePublished: r.created_at?.split('T')[0],
+          })),
+        } : {}),
+      },
+    ],
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="max-w-4xl mx-auto px-4 py-8">
 
         {/* Claim banner */}

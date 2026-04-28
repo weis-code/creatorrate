@@ -2,8 +2,20 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import StarRating from '@/components/StarRating'
 import { getTranslations } from 'next-intl/server'
+import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
+
+export const metadata: Metadata = {
+  title: 'CreatorRate — Anmeld dine favorit creators',
+  description: 'Trustpilot for creators. Find og anmeld YouTubere, TikTokere og andre danske creators baseret på rigtige seeres oplevelser.',
+  openGraph: {
+    title: 'CreatorRate — Anmeld dine favorit creators',
+    description: 'Trustpilot for creators. Find og anmeld YouTubere, TikTokere og andre danske creators.',
+    url: '/',
+    type: 'website',
+  },
+}
 
 export default async function HomePage() {
   const supabase = await createClient()

@@ -10,13 +10,41 @@ export const dynamic = 'force-dynamic'
 
 const inter = Inter({ subsets: ['latin'] })
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://creatorrate.io'
+
 export const metadata: Metadata = {
-  title: 'CreatorRate - Rate your favorite creators',
-  description: 'Trustpilot for creators. Review and find the best creators based on real viewers.',
+  metadataBase: new URL(APP_URL),
+  title: {
+    default: 'CreatorRate — Anmeld dine favorit creators',
+    template: '%s | CreatorRate',
+  },
+  description: 'Trustpilot for creators. Læs og skriv anmeldelser af YouTubere, TikTokere og andre creators baseret på rigtige seeres oplevelser.',
+  keywords: ['creator anmeldelser', 'youtube anmeldelser', 'tiktok anmeldelser', 'creator rating', 'influencer anmeldelser'],
+  authors: [{ name: 'CreatorRate', url: APP_URL }],
+  creator: 'CreatorRate',
+  openGraph: {
+    type: 'website',
+    locale: 'da_DK',
+    url: APP_URL,
+    siteName: 'CreatorRate',
+    title: 'CreatorRate — Anmeld dine favorit creators',
+    description: 'Trustpilot for creators. Læs og skriv anmeldelser af YouTubere, TikTokere og andre creators.',
+    images: [{ url: '/logo.svg', width: 512, height: 512, alt: 'CreatorRate' }],
+  },
+  twitter: {
+    card: 'summary',
+    title: 'CreatorRate — Anmeld dine favorit creators',
+    description: 'Trustpilot for creators. Læs og skriv anmeldelser af YouTubere, TikTokere og andre creators.',
+    images: ['/logo.svg'],
+  },
   icons: {
     icon: '/logo.svg',
     shortcut: '/logo.svg',
     apple: '/logo.svg',
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 }
 
