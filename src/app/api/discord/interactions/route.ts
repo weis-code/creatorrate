@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse, after } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { verifyKey } from 'discord-interactions'
 
 const PING = 1
 const APPLICATION_COMMAND = 2
@@ -25,39 +26,6 @@ Your job:
 - Always respond in the same language the user is writing in. If they write in Danish, reply in Danish. If they write in English, reply in English.
 - Keep responses short and to the point.`
 
-// ── Ed25519 signature verification using Web Crypto ──────────────────────────
-function hexToUint8Array(hex: string): Uint8Array<ArrayBuffer> {
-  const buffer = new ArrayBuffer(hex.length / 2)
-  const bytes = new Uint8Array(buffer)
-  for (let i = 0; i < hex.length; i += 2) {
-    bytes[i / 2] = parseInt(hex.slice(i, i + 2), 16)
-  }
-  return bytes
-}
-
-async function verifyDiscordSignature(
-  body: string,
-  signature: string,
-  timestamp: string
-): Promise<boolean> {
-  try {
-    const key = await crypto.subtle.importKey(
-      'raw',
-      hexToUint8Array(process.env.DISCORD_PUBLIC_KEY!),
-      { name: 'Ed25519' },
-      false,
-      ['verify']
-    )
-    return await crypto.subtle.verify(
-      { name: 'Ed25519' },
-      key,
-      hexToUint8Array(signature),
-      new TextEncoder().encode(timestamp + body)
-    )
-  } catch {
-    return false
-  }
-}
 
 // ── Handle /support command ───────────────────────────────────────────────────
 async function handleSupportCommand(interaction: {
@@ -133,7 +101,7 @@ export async function POST(req: NextRequest) {
   const signature = req.headers.get('x-signature-ed25519') ?? ''
   const timestamp = req.headers.get('x-signature-timestamp') ?? ''
 
-  const isValid = await verifyDiscordSignature(body, signature, timestamp)
+  const isValid = await verifyKey(body, signature, timestamp, process.env.DISCORD_PUBLIC_KEY!)
   if (!isValid) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
   }
