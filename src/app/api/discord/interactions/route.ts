@@ -117,13 +117,16 @@ export async function POST(req: NextRequest) {
   const body = await req.text()
   console.log('POST body:', body)
 
-  let interaction: { type: number; data?: { name: string; options?: { value: string }[] } }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let interaction: any
   try {
     interaction = JSON.parse(body)
   } catch {
     console.error('Invalid JSON body')
     return NextResponse.json({ error: 'Invalid body' }, { status: 400 })
   }
+
+  console.log('Interaction type:', interaction.type)
 
   // MIDLERTIDIGT: verifikation sprunget over for debugging
   // Discord ping
@@ -135,7 +138,7 @@ export async function POST(req: NextRequest) {
   // Slash command: /support
   if (interaction.type === APPLICATION_COMMAND && interaction.data?.name === 'support') {
     after(async () => {
-      await handleSupportCommand(interaction as Parameters<typeof handleSupportCommand>[0])
+      await handleSupportCommand(interaction)
     })
     return NextResponse.json({ type: DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE })
   }
