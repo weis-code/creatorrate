@@ -2,6 +2,9 @@ import { NextRequest, NextResponse, after } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import nacl from 'tweetnacl'
 
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
 const PING = 1
 const APPLICATION_COMMAND = 2
 const PONG = 1
