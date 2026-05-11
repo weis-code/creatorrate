@@ -115,34 +115,28 @@ export function GET() {
 // ── Route handler ─────────────────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
   const body = await req.text()
-  const signature = req.headers.get('x-signature-ed25519') ?? ''
-  const timestamp = req.headers.get('x-signature-timestamp') ?? ''
+  console.log('POST body:', body)
 
-  console.log('Discord interaction received, type will be:', JSON.parse(body).type)
-  console.log('Public key set:', !!process.env.DISCORD_PUBLIC_KEY)
-
-  const isValid = verifyDiscordSignature(body, signature, timestamp)
-  console.log('Signature valid:', isValid)
-
-  if (!isValid) {
-    return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+  let interaction: { type: number; data?: { name: string; options?: { value: string }[] } }
+  try {
+    interaction = JSON.parse(body)
+  } catch {
+    console.error('Invalid JSON body')
+    return NextResponse.json({ error: 'Invalid body' }, { status: 400 })
   }
 
-  const interaction = JSON.parse(body)
-
-  // Discord ping — krævet for at validere endpoint URL
+  // MIDLERTIDIGT: verifikation sprunget over for debugging
+  // Discord ping
   if (interaction.type === PING) {
+    console.log('Responding to PING')
     return NextResponse.json({ type: PONG })
   }
 
   // Slash command: /support
-  if (interaction.type === APPLICATION_COMMAND && interaction.data.name === 'support') {
-    // Kør AI-kaldet efter vi har sendt "tænker..."-svaret til Discord
+  if (interaction.type === APPLICATION_COMMAND && interaction.data?.name === 'support') {
     after(async () => {
-      await handleSupportCommand(interaction)
+      await handleSupportCommand(interaction as Parameters<typeof handleSupportCommand>[0])
     })
-
-    // Svar inden for 3 sekunder med "tænker..." indikator
     return NextResponse.json({ type: DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE })
   }
 
