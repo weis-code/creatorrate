@@ -48,8 +48,37 @@ async function handleSupportCommand(interaction: any) {
   const userId = user?.id
   const username = user?.global_name ?? user?.username ?? 'Bruger'
   const webhookUrl = `https://discord.com/api/v10/webhooks/${process.env.DISCORD_APP_ID}/${interaction.token}`
+  const botHeaders = {
+    'Content-Type': 'application/json',
+    Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+  }
 
   try {
+    // 1. Opret privat tråd i kanalen
+    const threadRes = await fetch(
+      `https://discord.com/api/v10/channels/${interaction.channel_id}/threads`,
+      {
+        method: 'POST',
+        headers: botHeaders,
+        body: JSON.stringify({
+          name: `🎫 ${username}`,
+          type: 12,           // GUILD_PRIVATE_THREAD
+          invitable: false,   // kun admin kan tilføje andre
+          auto_archive_duration: 1440,
+        }),
+      }
+    )
+    const thread = await threadRes.json()
+
+    if (!thread.id) throw new Error('Kunne ikke oprette tråd')
+
+    // 2. Tilføj brugeren til den private tråd
+    await fetch(
+      `https://discord.com/api/v10/channels/${thread.id}/thread-members/${userId}`,
+      { method: 'PUT', headers: botHeaders }
+    )
+
+    // 3. Hent AI-svar
     const response = await client.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 1024,
@@ -59,38 +88,37 @@ async function handleSupportCommand(interaction: any) {
 
     const answer = response.content[0].type === 'text'
       ? response.content[0].text
-      : 'Beklager, noget gik galt. Kontakt support@creatorrate.io'
+      : 'Beklager, noget gik galt. Hop ind på vores Discord for live support: https://discord.gg/RpZDx2wH2B'
 
-    const followupRes = await fetch(webhookUrl, {
+    // 4. Post spørgsmål + svar i den private tråd
+    await fetch(
+      `https://discord.com/api/v10/channels/${thread.id}/messages`,
+      {
+        method: 'POST',
+        headers: botHeaders,
+        body: JSON.stringify({
+          content: `**<@${userId}> spørger:**\n${question}\n\n**Svar:**\n${answer}`,
+        }),
+      }
+    )
+
+    // 5. Send ephemeral besked til brugeren med link til tråden (kun synlig for dem)
+    await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        content: `<@${userId}> spørger: **${question}**\n\n${answer}`,
+        content: `Jeg har oprettet en privat support-tråd til dig: <#${thread.id}>`,
+        flags: 64, // ephemeral — kun synlig for brugeren
       }),
     })
-
-    const message = await followupRes.json()
-
-    if (message.id && interaction.channel_id) {
-      await fetch(
-        `https://discord.com/api/v10/channels/${interaction.channel_id}/messages/${message.id}/threads`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
-          },
-          body: JSON.stringify({ name: `🎫 Support: ${username}`, auto_archive_duration: 1440 }),
-        }
-      )
-    }
   } catch (err) {
     console.error('Discord support error:', err)
     await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        content: `<@${userId}> Beklager, noget gik galt. Send en mail til support@creatorrate.io`,
+        content: `Beklager, noget gik galt. Prøv igen eller hop ind på: https://discord.gg/RpZDx2wH2B`,
+        flags: 64,
       }),
     }).catch(() => {})
   }
