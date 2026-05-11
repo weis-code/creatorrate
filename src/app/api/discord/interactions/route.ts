@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse, after } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
-import { verifyKey } from 'discord-interactions'
+import { createVerify } from 'crypto'
 
 const PING = 1
 const APPLICATION_COMMAND = 2
@@ -95,13 +95,33 @@ async function handleSupportCommand(interaction: {
   }
 }
 
+function verifyDiscordSignature(body: string, signature: string, timestamp: string): boolean {
+  try {
+    const verify = createVerify('Ed25519')
+    verify.update(timestamp + body)
+    const result = verify.verify(
+      Buffer.from(process.env.DISCORD_PUBLIC_KEY!, 'hex'),
+      Buffer.from(signature, 'hex')
+    )
+    return result
+  } catch (err) {
+    console.error('Signature verification error:', err)
+    return false
+  }
+}
+
 // ── Route handler ─────────────────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
   const body = await req.text()
   const signature = req.headers.get('x-signature-ed25519') ?? ''
   const timestamp = req.headers.get('x-signature-timestamp') ?? ''
 
-  const isValid = await verifyKey(body, signature, timestamp, process.env.DISCORD_PUBLIC_KEY!)
+  console.log('Discord interaction received, type will be:', JSON.parse(body).type)
+  console.log('Public key set:', !!process.env.DISCORD_PUBLIC_KEY)
+
+  const isValid = verifyDiscordSignature(body, signature, timestamp)
+  console.log('Signature valid:', isValid)
+
   if (!isValid) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
   }
