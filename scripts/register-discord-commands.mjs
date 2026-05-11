@@ -34,10 +34,14 @@ const commands = [
       {
         name: 'spørgsmål',
         description: 'Hvad har du brug for hjælp til?',
-        type: 3, // STRING
+        type: 3,
         required: true,
       },
     ],
+  },
+  {
+    name: 'setup-support',
+    description: 'Post support-knappen i den nuværende kanal (kør kun én gang)',
   },
 ]
 
