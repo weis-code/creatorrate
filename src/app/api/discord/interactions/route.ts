@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse, after } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
-import { createVerify } from 'node:crypto'
+import nacl from 'tweetnacl'
 
 const PING = 1
 const APPLICATION_COMMAND = 2
@@ -97,13 +97,10 @@ async function handleSupportCommand(interaction: {
 
 function verifyDiscordSignature(body: string, signature: string, timestamp: string): boolean {
   try {
-    const verify = createVerify('Ed25519')
-    verify.update(timestamp + body)
-    const result = verify.verify(
-      Buffer.from(process.env.DISCORD_PUBLIC_KEY!, 'hex'),
-      Buffer.from(signature, 'hex')
-    )
-    return result
+    const sig = Buffer.from(signature, 'hex')
+    const msg = Buffer.from(timestamp + body)
+    const key = Buffer.from(process.env.DISCORD_PUBLIC_KEY!, 'hex')
+    return nacl.sign.detached.verify(msg, sig, key)
   } catch (err) {
     console.error('Signature verification error:', err)
     return false
