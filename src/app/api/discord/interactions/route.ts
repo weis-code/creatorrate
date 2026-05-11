@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse, after } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
-import { createVerify } from 'crypto'
+import { createVerify } from 'node:crypto'
 
 const PING = 1
 const APPLICATION_COMMAND = 2
@@ -108,6 +108,11 @@ function verifyDiscordSignature(body: string, signature: string, timestamp: stri
     console.error('Signature verification error:', err)
     return false
   }
+}
+
+// ── GET: bruges til at bekræfte at endpoint er tilgængeligt ──────────────────
+export function GET() {
+  return NextResponse.json({ ok: true, message: 'Discord interactions endpoint is live' })
 }
 
 // ── Route handler ─────────────────────────────────────────────────────────────
