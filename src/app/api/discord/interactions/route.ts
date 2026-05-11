@@ -44,12 +44,12 @@ async function verifyDiscordSignature(
     const key = await crypto.subtle.importKey(
       'raw',
       hexToUint8Array(process.env.DISCORD_PUBLIC_KEY!),
-      { name: 'Ed25519', namedCurve: 'Ed25519' },
+      { name: 'Ed25519' },
       false,
       ['verify']
     )
     return await crypto.subtle.verify(
-      'Ed25519',
+      { name: 'Ed25519' },
       key,
       hexToUint8Array(signature),
       new TextEncoder().encode(timestamp + body)
