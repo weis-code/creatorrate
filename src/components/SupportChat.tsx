@@ -62,7 +62,7 @@ export default function SupportChat() {
           ...prev,
           {
             role: 'assistant',
-            content: 'Beklager, noget gik galt. Send os en mail på support@creatorrate.io, så hjælper vi dig.',
+            content: 'Beklager, noget gik galt. Hop ind på vores Discord for live support: https://discord.gg/RpZDx2wH2B',
           },
         ])
       }
@@ -71,7 +71,7 @@ export default function SupportChat() {
         ...prev,
         {
           role: 'assistant',
-          content: 'Beklager, noget gik galt. Send os en mail på support@creatorrate.io, så hjælper vi dig.',
+          content: 'Beklager, noget gik galt. Hop ind på vores Discord for live support: https://discord.gg/RpZDx2wH2B',
         },
       ])
     } finally {
