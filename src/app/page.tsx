@@ -21,11 +21,61 @@ export default async function HomePage() {
   const supabase = await createClient()
   const t = await getTranslations('home')
 
-  const { data: topCreators } = await supabase
-    .from('creators')
-    .select('*')
-    .order('average_rating', { ascending: false })
-    .limit(6)
+  const now = new Date()
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+
+  const { data: monthlyReviews } = await supabase
+    .from('reviews')
+    .select('creator_id, rating')
+    .gte('created_at', startOfMonth)
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let topCreators: any[] = []
+  let hasMonthlyData = false
+
+  if (monthlyReviews && monthlyReviews.length > 0) {
+    const statsMap = new Map<string, { sum: number; count: number }>()
+    for (const r of monthlyReviews) {
+      const s = statsMap.get(r.creator_id) ?? { sum: 0, count: 0 }
+      s.sum += r.rating
+      s.count++
+      statsMap.set(r.creator_id, s)
+    }
+
+    const sorted = [...statsMap.entries()]
+      .map(([id, s]) => ({ id, avg: s.sum / s.count, count: s.count }))
+      .sort((a, b) => b.avg - a.avg || b.count - a.count)
+      .slice(0, 6)
+
+    const { data: creators } = await supabase
+      .from('creators')
+      .select('*')
+      .in('id', sorted.map(x => x.id))
+
+    if (creators && creators.length > 0) {
+      topCreators = sorted
+        .map(s => {
+          const creator = creators.find((c: { id: string }) => c.id === s.id)
+          if (!creator) return null
+          return { ...creator, display_rating: s.avg, display_count: s.count }
+        })
+        .filter(Boolean)
+      hasMonthlyData = true
+    }
+  }
+
+  if (!hasMonthlyData) {
+    const { data } = await supabase
+      .from('creators')
+      .select('*')
+      .order('average_rating', { ascending: false })
+      .limit(6)
+    topCreators = (data ?? []).map((c: { average_rating: number; review_count: number }) => ({
+      ...c,
+      display_rating: c.average_rating,
+      display_count: c.review_count,
+    }))
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -88,7 +138,7 @@ export default async function HomePage() {
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex justify-between items-end mb-8">
               <div>
-                <p className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-1">{t('topRatedSubtitle')}</p>
+                <p className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-1">{hasMonthlyData ? t('topRatedSubtitle') : t('topRatedSubtitleAllTime')}</p>
                 <h2 className="text-2xl font-black text-white tracking-tight">{t('topRatedTitle')}</h2>
               </div>
               <Link href="/creators" className="text-sm font-semibold text-white/40 hover:text-white/70 transition-colors flex items-center gap-1">
@@ -131,10 +181,10 @@ export default async function HomePage() {
                         <p className="text-[12px] text-white/40 line-clamp-2 mb-3 leading-relaxed">{creator.bio}</p>
                       )}
                       <div className="flex items-center justify-between pt-3 border-t border-white/5">
-                        <StarRating rating={creator.average_rating} size="sm" />
+                        <StarRating rating={creator.display_rating} size="sm" />
                         <div>
-                          <span className="text-base font-black text-white/90">{creator.average_rating.toFixed(1)}</span>
-                          <span className="text-xs text-white/30 ml-1">({creator.review_count})</span>
+                          <span className="text-base font-black text-white/90">{creator.display_rating.toFixed(1)}</span>
+                          <span className="text-xs text-white/30 ml-1">({creator.display_count})</span>
                         </div>
                       </div>
                     </div>
