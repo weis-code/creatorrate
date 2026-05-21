@@ -244,7 +244,18 @@
     "manageBilling": "Hantera fakturering",
     "cancelConfirm": "Är du säker på att du vill avbryta? Du behåller åtkomsten till {date}.",
     "canceling": "Avbryter...",
-    "cancelSuccess": "Prenumeration avbruten. Åtkomst till {date}."
+    "cancelSuccess": "Prenumeration avbruten. Åtkomst till {date}.",
+    "paymentHistory": "Betalningshistorik",
+    "paymentDate": "Datum",
+    "paymentDescription": "Beskrivning",
+    "paymentAmount": "Belopp",
+    "paymentStatus": "Status",
+    "paymentReceipt": "Kvitto",
+    "paymentNoHistory": "Inga betalningar än",
+    "paymentPaid": "Betald",
+    "paymentOpen": "Väntar",
+    "paymentVoid": "Ogiltig",
+    "paymentDownload": "Ladda ned"
   },
   "profile": {
     "title": "Min profil",

@@ -244,7 +244,18 @@
     "manageBilling": "Manage billing",
     "cancelConfirm": "Are you sure you want to cancel? You'll keep access until {date}.",
     "canceling": "Canceling...",
-    "cancelSuccess": "Subscription canceled. Access until {date}."
+    "cancelSuccess": "Subscription canceled. Access until {date}.",
+    "paymentHistory": "Payment history",
+    "paymentDate": "Date",
+    "paymentDescription": "Description",
+    "paymentAmount": "Amount",
+    "paymentStatus": "Status",
+    "paymentReceipt": "Receipt",
+    "paymentNoHistory": "No payments yet",
+    "paymentPaid": "Paid",
+    "paymentOpen": "Pending",
+    "paymentVoid": "Void",
+    "paymentDownload": "Download"
   },
   "profile": {
     "title": "My Profile",

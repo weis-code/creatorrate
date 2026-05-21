@@ -244,7 +244,18 @@
     "manageBilling": "Administrer fakturering",
     "cancelConfirm": "Er du sikker på at du vil avbryte? Du beholder tilgangen til {date}.",
     "canceling": "Avbryter...",
-    "cancelSuccess": "Abonnement avbrutt. Tilgang til {date}."
+    "cancelSuccess": "Abonnement avbrutt. Tilgang til {date}.",
+    "paymentHistory": "Betalingshistorikk",
+    "paymentDate": "Dato",
+    "paymentDescription": "Beskrivelse",
+    "paymentAmount": "Beløp",
+    "paymentStatus": "Status",
+    "paymentReceipt": "Kvittering",
+    "paymentNoHistory": "Ingen betalinger ennå",
+    "paymentPaid": "Betalt",
+    "paymentOpen": "Venter",
+    "paymentVoid": "Annullert",
+    "paymentDownload": "Last ned"
   },
   "profile": {
     "title": "Min profil",
