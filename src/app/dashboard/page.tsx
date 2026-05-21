@@ -49,45 +49,52 @@ export default async function DashboardPage() {
   const profileIncomplete = !creator.bio || !hasOnePlatformLink
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+    <div className="min-h-screen bg-white">
       {/* Setup nudge modal — shown until profile is complete */}
       {profileIncomplete && <SetupNudgeModal />}
-      {/* Top banner */}
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-8">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <div>
-            <p className="text-indigo-200 text-sm font-medium mb-1">{t('title')}</p>
-            <h1 className="text-2xl font-bold text-white">{t('greeting', { name: creator.display_name })}</h1>
-          </div>
-          <div className="flex gap-2">
-            <Link
-              href={`/creators/${creator.slug}`}
-              className="bg-white/15 hover:bg-white/25 text-white border border-white/20 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
-            >
-              {t('viewProfile')}
-            </Link>
-            <ShareProfileButton url={`${process.env.NEXT_PUBLIC_APP_URL ?? 'https://creatorrate.dk'}/creators/${creator.slug}`} />
-            <Link
-              href="/dashboard/settings"
-              className="bg-white/15 hover:bg-white/25 text-white border border-white/20 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
-            >
-              {t('settings')}
-            </Link>
+
+      {/* Dark header */}
+      <div className="bg-[#08080f]">
+        <div className="relative overflow-hidden">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-indigo-700/15 rounded-full blur-[120px] pointer-events-none" />
+          <div className="relative max-w-6xl mx-auto px-4 pt-10 pb-10">
+            <div className="flex justify-between items-center gap-4">
+              <div>
+                <p className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-2">{t('title')}</p>
+                <h1 className="text-3xl font-black text-white tracking-tight">{t('greeting', { name: creator.display_name })}</h1>
+              </div>
+              <div className="flex gap-2 flex-shrink-0">
+                <Link
+                  href={`/creators/${creator.slug}`}
+                  className="bg-white/[0.07] hover:bg-white/[0.12] text-white border border-white/10 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+                >
+                  {t('viewProfile')}
+                </Link>
+                <ShareProfileButton url={`${process.env.NEXT_PUBLIC_APP_URL ?? 'https://creatorrate.dk'}/creators/${creator.slug}`} />
+                <Link
+                  href="/dashboard/settings"
+                  className="bg-white/[0.07] hover:bg-white/[0.12] text-white border border-white/10 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+                >
+                  {t('settings')}
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
+        <div className="h-14 bg-gradient-to-b from-[#08080f] to-white" />
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 -mt-4 pb-16">
+      <div className="max-w-6xl mx-auto px-4 pb-16">
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           {stats.map(({ value, label, icon, color, extra }: any) => (
-            <div key={label} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            <div key={label} className="bg-white rounded-2xl p-5 border border-gray-100 hover:border-indigo-100 hover:shadow-md hover:shadow-indigo-50 transition-all">
               <div className={`inline-flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br ${color} text-white text-lg mb-3 shadow-sm`}>
                 {icon}
               </div>
-              <div className="text-2xl font-bold text-gray-900">{value}</div>
+              <div className="text-2xl font-black text-gray-900">{value}</div>
               {extra && <div className="mt-0.5">{extra}</div>}
-              <div className="text-sm text-gray-500 mt-0.5">{label}</div>
+              <div className="text-sm text-gray-500 mt-0.5 font-medium">{label}</div>
             </div>
           ))}
         </div>

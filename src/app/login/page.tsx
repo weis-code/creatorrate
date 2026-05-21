@@ -45,21 +45,25 @@ function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/20 flex items-center justify-center py-12 px-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-[#08080f] flex items-center justify-center py-12 px-4 relative">
+      {/* Ambient glow */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-700/15 rounded-full blur-[120px]" />
+      </div>
+      <div className="w-full max-w-md relative">
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2.5 mb-6">
-            <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
-              <span className="text-white font-bold">CR</span>
+          <Link href="/" className="inline-flex items-center gap-2.5 mb-6 justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-900/40">
+              <span className="text-white font-black">CR</span>
             </div>
-            <span className="font-bold text-xl text-gray-900">CreatorRate</span>
+            <span className="font-black text-xl text-white tracking-tight">CreatorRate</span>
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">{t('welcomeBack')}</h1>
-          <p className="text-gray-500 mt-1 text-sm">{t('loginSubtext')}</p>
+          <h1 className="text-2xl font-black text-white tracking-tight">{t('welcomeBack')}</h1>
+          <p className="text-white/40 mt-1 text-sm">{t('loginSubtext')}</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-2xl shadow-black/30 border border-white/10 overflow-hidden">
           {/* Top accent */}
           <div className="h-1 bg-gradient-to-r from-indigo-600 to-purple-600" />
 
@@ -133,7 +137,7 @@ function LoginForm() {
 export default function LoginPage() {
   const t = useTranslations('common')
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="text-gray-400">{t('loading')}</div></div>}>
+    <Suspense fallback={<div className="min-h-screen bg-[#08080f] flex items-center justify-center"><div className="text-white/30">{t('loading')}</div></div>}>
       <LoginForm />
     </Suspense>
   )
