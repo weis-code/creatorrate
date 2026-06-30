@@ -59,6 +59,8 @@
     "createSubtext": "Free to get started",
     "username": "Username",
     "usernamePlaceholder": "yourusername",
+    "phone": "Phone number",
+    "phonePlaceholder": "+1 234 567 8900",
     "passwordHint": "At least 6 characters",
     "createBtn": "Create account →",
     "creating": "Creating account...",

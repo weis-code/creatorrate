@@ -59,6 +59,8 @@
     "createSubtext": "Gratis att komma igång",
     "username": "Användarnamn",
     "usernamePlaceholder": "dittanvändarnamn",
+    "phone": "Telefonnummer",
+    "phonePlaceholder": "+46 123 456 789",
     "passwordHint": "Minst 6 tecken",
     "createBtn": "Skapa konto →",
     "creating": "Skapar konto...",

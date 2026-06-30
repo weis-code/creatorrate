@@ -11,9 +11,9 @@ function getSupabaseAdmin() {
 
 export async function POST(req: Request) {
   try {
-  const { email, username, password, tier } = await req.json()
+  const { email, username, password, phone, tier } = await req.json()
 
-  if (!email || !username || !password || !tier) {
+  if (!email || !username || !password || !phone || !tier) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
   }
 
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
   // Store pending signup (deleted after webhook creates user)
   const { data: pending, error: pendingError } = await supabase
     .from('pending_signups')
-    .insert({ email, username, password, tier })
+    .insert({ email, username, password, phone, tier })
     .select('id')
     .single()
 

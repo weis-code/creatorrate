@@ -59,6 +59,8 @@
     "createSubtext": "Gratis at komme i gang",
     "username": "Brugernavn",
     "usernamePlaceholder": "ditbrugernavn",
+    "phone": "Telefonnummer",
+    "phonePlaceholder": "+45 12 34 56 78",
     "passwordHint": "Mindst 6 tegn",
     "createBtn": "Opret konto →",
     "creating": "Opretter konto...",

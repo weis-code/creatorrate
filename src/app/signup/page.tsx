@@ -15,6 +15,7 @@ function SignupForm() {
   const [role, setRole] = useState<'viewer' | 'creator'>(defaultRole)
   const [email, setEmail] = useState('')
   const [username, setUsername] = useState('')
+  const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -28,7 +29,7 @@ function SignupForm() {
     const { error: signupError, data } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { username, role: 'viewer' } },
+      options: { data: { username, role: 'viewer', phone } },
     })
 
     if (signupError) {
@@ -42,6 +43,10 @@ function SignupForm() {
       setError('Der eksisterer allerede en konto med denne email')
       setLoading(false)
       return
+    }
+
+    if (data.user) {
+      await supabase.from('profiles').update({ phone }).eq('id', data.user.id)
     }
 
     fetch('/api/emails/welcome', {
@@ -62,7 +67,7 @@ function SignupForm() {
       const res = await fetch('/api/auth/creator-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, username, password, tier: 'PRO' }),
+        body: JSON.stringify({ email, username, password, phone, tier: 'PRO' }),
       })
 
       let data: any = {}
@@ -161,6 +166,17 @@ function SignupForm() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t('emailPlaceholder')}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">{t('phone')}</label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder={t('phonePlaceholder')}
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
                   required
                 />

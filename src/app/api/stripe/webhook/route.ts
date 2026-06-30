@@ -49,6 +49,7 @@ async function handleCreatorSignup(supabase: ReturnType<typeof getSupabaseAdmin>
   await supabase.from('profiles').update({
     username: pending.username,
     role: 'creator',
+    phone: pending.phone ?? null,
   }).eq('id', user.id)
 
   // Link creator to their profile — take over an unclaimed placeholder if one exists with same slug,
