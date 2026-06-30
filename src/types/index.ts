@@ -1,6 +1,6 @@
 export type UserRole = 'viewer' | 'creator'
 
-export type SubscriptionTier = 'basic' | 'pro' | null
+export type SubscriptionTier = 'pro' | null
 
 export interface Profile {
   id: string

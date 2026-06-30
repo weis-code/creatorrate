@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl'
 
 interface Props {
   priceId: string
-  tier: 'basic' | 'pro'
+  tier: 'pro'
   creatorId: string | null
 }
 
@@ -32,7 +32,7 @@ export default function CheckoutButton({ priceId, tier, creatorId }: Props) {
       disabled={loading}
       className="w-full bg-indigo-600 text-white py-3 rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors"
     >
-      {loading ? tCommon('loading') : t('choosePlan', { tier: tier === 'pro' ? 'Pro' : 'Basic' })}
+      {loading ? tCommon('loading') : t('choosePlan', { tier: 'Pro' })}
     </button>
   )
 }

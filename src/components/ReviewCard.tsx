@@ -102,12 +102,6 @@ export default function ReviewCard({ review, currentUserId, creatorUserId, creat
       return
     }
 
-    if (subscription.tier === 'basic' && daysSinceReview < 30) {
-      setError(t('basicRestriction'))
-      setLoading(false)
-      return
-    }
-
     const { error: replyError } = await supabase
       .from('review_replies')
       .insert({

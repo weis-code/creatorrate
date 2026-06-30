@@ -87,7 +87,7 @@ export default async function SubscriptionPage() {
               <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center text-xl flex-shrink-0">✅</div>
               <div className="flex-1">
                 <div className="font-bold text-green-800">
-                  {t('activeSubscription', { tier: subscription.tier === 'pro' ? 'Pro' : 'Basic' })}
+                  {t('activeSubscription', { tier: 'Pro' })}
                 </div>
                 <div className="text-sm text-green-600 mt-0.5">
                   {t('renewsOn', { date: new Date(subscription.current_period_end).toLocaleDateString('da-DK') })}
@@ -149,7 +149,7 @@ export default async function SubscriptionPage() {
                     ))}
                   </ul>
                   {!isActive ? (
-                    <CheckoutButton priceId={plan.priceId} tier={plan.name.toLowerCase() as 'basic' | 'pro'} creatorId={creator?.id ?? null} />
+                    <CheckoutButton priceId={plan.priceId} tier="pro" creatorId={creator?.id ?? null} />
                   ) : (
                     <div className="text-center text-sm text-gray-400 bg-gray-50 py-3 rounded-xl font-medium">
                       {t('currentPlan')}
