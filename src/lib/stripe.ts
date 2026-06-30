@@ -5,16 +5,9 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 })
 
 export const PLANS = {
-  BASIC: {
-    name: 'Basic',
-    price: 99,
-    priceId: process.env.STRIPE_PRICE_ID_BASIC!,
-    description: 'Reply to reviews older than 1 month',
-    features: ['Reply to older reviews (>1 month)', 'Creator profile', 'Dispute reviews'],
-  },
   PRO: {
     name: 'Pro',
-    price: 149,
+    price: 5,
     priceId: process.env.STRIPE_PRICE_ID_PRO!,
     description: 'Reply to all reviews instantly',
     features: ['Reply to all reviews instantly', 'Creator profile', 'Dispute reviews', 'Priority support'],

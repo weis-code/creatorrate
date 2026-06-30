@@ -4,10 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function POST(req: Request) {
   try {
-    const { tier } = await req.json()
-    if (!['BASIC', 'PRO'].includes(tier)) {
-      return NextResponse.json({ error: 'Ugyldigt abonnement' }, { status: 400 })
-    }
+    const tier = 'PRO'
 
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -18,9 +15,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Du er allerede en creator' }, { status: 400 })
     }
 
-    const priceId = tier === 'BASIC'
-      ? process.env.STRIPE_PRICE_ID_BASIC!
-      : process.env.STRIPE_PRICE_ID_PRO!
+    const priceId = process.env.STRIPE_PRICE_ID_PRO!
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://creatorrate.dk'
 
@@ -28,7 +23,6 @@ export async function POST(req: Request) {
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
       mode: 'subscription',
-      subscription_data: { trial_period_days: 30 },
       customer_email: user.email,
       metadata: {
         upgrade_user_id: user.id,

@@ -61,17 +61,12 @@ export async function POST(req: Request) {
   }
 
   // Create Stripe checkout session
-  const priceId = tier === 'BASIC'
-    ? process.env.STRIPE_PRICE_ID_BASIC!
-    : process.env.STRIPE_PRICE_ID_PRO!
+  const priceId = process.env.STRIPE_PRICE_ID_PRO!
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
     line_items: [{ price: priceId, quantity: 1 }],
     mode: 'subscription',
-    subscription_data: {
-      trial_period_days: 30,
-    },
     success_url: `${process.env.NEXT_PUBLIC_APP_URL}/signup/success?email=${encodeURIComponent(email)}`,
     cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/signup?role=creator`,
     customer_email: email,
